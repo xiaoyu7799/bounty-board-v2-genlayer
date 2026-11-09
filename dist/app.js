@@ -22533,6 +22533,70 @@ function buildDossier({ bounty, hunter, totals, readBackAt }) {
   };
 }
 
+// site/src/kanban.js
+function columnKeyForStatus(status) {
+  if (status === "OPEN") return "OPEN";
+  if (status === "CLAIMED") return "CLAIMED";
+  if (status === "DELIVERED" || status === "VERDICT_PENDING") return "REVIEW";
+  return "SETTLED";
+}
+function columnTitleKey(columnKey) {
+  if (columnKey === "OPEN") return "colOpen";
+  if (columnKey === "CLAIMED") return "colClaimed";
+  if (columnKey === "REVIEW") return "colReview";
+  return "colSettled";
+}
+function verdictTag(audit, t2) {
+  if (!audit) return `<span class="tag tag-mist">${esc(t2("unconfirmed"))}</span>`;
+  if (audit.verdict === "ACCEPT") return `<span class="tag tag-pine">${esc(t2("acceptedLabel"))}</span>`;
+  if (audit.verdict === "PARTIAL") return `<span class="tag tag-ink">${esc(t2("partialLabel"))}</span>`;
+  if (audit.verdict === "REJECT") return `<span class="tag tag-signal">${esc(t2("rejectedLabel"))}</span>`;
+  if (audit.verdict === "FAKE") return `<span class="tag tag-signal">${esc(t2("fakeLabel"))}</span>`;
+  return `<span class="tag tag-mist">${esc(t2("unconfirmed"))}</span>`;
+}
+function esc(value) {
+  return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+function fmtGenFromUnits(units, t2) {
+  return `${(Number(units) / 1e3).toFixed(3)} ${t2("genUnit")}`;
+}
+function shortAddr(address, t2) {
+  if (!address) return t2("empty");
+  return `${address.slice(0, 6)}\u2026${address.slice(-4)}`;
+}
+function bountyCard(bounty, t2, actionsHtml = "") {
+  const audit = bounty.pending_verdict || bounty.last_audit;
+  const status = bounty.status || "OPEN";
+  return `<article class="bounty-card" data-bounty="${esc(bounty.bounty_id)}" tabindex="0">
+    <header><h3>${esc(bounty.bounty_id)}</h3><span class="status">${esc(status)}</span></header>
+    <p class="req">${esc(bounty.requirements || "")}</p>
+    <dl>
+      <div><dt>${esc(t2("amount"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.amount || 0, t2))}</dd></div>
+      <div><dt>${esc(t2("stake"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.stake || 0, t2))}</dd></div>
+      <div><dt>${esc(t2("issuer"))}</dt><dd class="mono">${esc(shortAddr(bounty.issuer, t2))}</dd></div>
+      <div><dt>${esc(t2("hunter"))}</dt><dd class="mono">${esc(bounty.claimed_by ? shortAddr(bounty.claimed_by, t2) : t2("empty"))}</dd></div>
+      <div><dt>${esc(t2("targetRepo"))}</dt><dd class="mono">${esc(bounty.expected_repo_slug || "")}</dd></div>
+      ${bounty.delivery ? `<div><dt>${esc(t2("prLink"))}</dt><dd><a class="mono" href="${esc(bounty.delivery.pr_url)}" target="_blank" rel="noreferrer">${esc(t2("githubPr"))} #${esc(bounty.delivery.pr_number)}</a></dd></div>` : ""}
+      ${audit ? `<div><dt>${esc(t2("verdict"))}</dt><dd>${verdictTag(audit, t2)}</dd></div>
+      <div><dt>${esc(t2("scores"))}</dt><dd class="mono">${esc(audit.completeness_score)} / ${esc(audit.scope_fit_score)} / ${esc(audit.quality_score)}</dd></div>
+      <div><dt>${esc(t2("evidenceHash"))}</dt><dd class="mono">${esc(String(audit.evidence_hash || "").slice(0, 16))}\u2026</dd></div>` : ""}
+      ${bounty.settlement ? `<div><dt>${esc(t2("payout"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.hunter_payout_units || 0, t2))}</dd></div>
+      <div><dt>${esc(t2("refund"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.issuer_refund_units || 0, t2))}</dd></div>` : ""}
+      ${bounty.status === "VERDICT_PENDING" ? `<div><dt>\u2014</dt><dd>${esc(t2("pendingExecution"))}</dd></div>` : ""}
+      ${bounty.challenge ? `<div><dt>\u2014</dt><dd>${esc(t2("challengePending"))}</dd></div>` : ""}
+    </dl>
+    <div class="card-actions">${actionsHtml}</div>
+  </article>`;
+}
+function renderKanban(bounties, t2, actionsFor = () => "") {
+  const columns = { OPEN: [], CLAIMED: [], REVIEW: [], SETTLED: [] };
+  for (const bounty of Object.values(bounties || {})) {
+    columns[columnKeyForStatus(bounty.status || "OPEN")].push(bounty);
+  }
+  const col = (key, list) => `<section class="kanban-col"><h3>${esc(t2(columnTitleKey(key)))} <span class="count">${list.length}</span></h3>${list.map((b) => bountyCard(b, t2, actionsFor(b))).join("") || `<p class="empty">${esc(t2("empty"))}</p>`}</section>`;
+  return col("OPEN", columns.OPEN) + col("CLAIMED", columns.CLAIMED) + col("REVIEW", columns.REVIEW) + col("SETTLED", columns.SETTLED);
+}
+
 // site/src/app.js
 var $ = (sel) => document.querySelector(sel);
 var sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -22725,60 +22789,34 @@ function disconnectWallet() {
   renderWallet();
   renderAll();
 }
-function fmtGenFromUnits(units) {
-  return `${(Number(units) / 1e3).toFixed(3)} ${t(lang, "genUnit")}`;
-}
 function fmtGenFromWei(wei) {
   return `${(Number(BigInt(wei)) / 1e18).toFixed(3)} ${t(lang, "genUnit")}`;
 }
-function shortAddr(address) {
+function shortAddr2(address) {
   if (!address) return t(lang, "empty");
   return `${address.slice(0, 6)}\u2026${address.slice(-4)}`;
 }
-function esc(value) {
+function esc2(value) {
   return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
-function verdictBlock(bounty) {
-  const audit = bounty.pending_verdict || bounty.last_audit;
-  if (!audit) return `<span class="tag tag-mist">${esc(t(lang, "unconfirmed"))}</span>`;
-  const v = audit.verdict;
-  if (v === "ACCEPT") return `<span class="tag tag-pine">${esc(t(lang, "acceptedLabel"))}</span>`;
-  if (v === "PARTIAL") return `<span class="tag tag-ink">${esc(t(lang, "partialLabel"))}</span>`;
-  if (v === "REJECT") return `<span class="tag tag-signal">${esc(t(lang, "rejectedLabel"))}</span>`;
-  if (v === "FAKE") return `<span class="tag tag-signal">${esc(t(lang, "fakeLabel"))}</span>`;
-  return `<span class="tag tag-mist">${esc(t(lang, "unconfirmed"))}</span>`;
-}
-function bountyCard(bounty) {
-  const audit = bounty.pending_verdict || bounty.last_audit;
-  const status = bounty.status || "OPEN";
-  const actions = actionButtons(bounty);
-  return `<article class="bounty-card" data-bounty="${esc(bounty.bounty_id)}" tabindex="0">
-    <header><h3>${esc(bounty.bounty_id)}</h3><span class="status">${esc(status)}</span></header>
-    <p class="req">${esc(bounty.requirements || "")}</p>
-    <dl>
-      <div><dt>${esc(t(lang, "amount"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.amount || 0))}</dd></div>
-      <div><dt>${esc(t(lang, "stake"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.stake || 0))}</dd></div>
-      <div><dt>${esc(t(lang, "issuer"))}</dt><dd class="mono">${esc(shortAddr(bounty.issuer))}</dd></div>
-      <div><dt>${esc(t(lang, "hunter"))}</dt><dd class="mono">${esc(bounty.claimed_by ? shortAddr(bounty.claimed_by) : t(lang, "empty"))}</dd></div>
-      <div><dt>${esc(t(lang, "targetRepo"))}</dt><dd class="mono">${esc(bounty.expected_repo_slug || "")}</dd></div>
-      ${bounty.delivery ? `<div><dt>${esc(t(lang, "prLink"))}</dt><dd><a class="mono" href="${esc(bounty.delivery.pr_url)}" target="_blank" rel="noreferrer">${esc(t(lang, "githubPr"))} #${esc(bounty.delivery.pr_number)}</a></dd></div>` : ""}
-      ${audit ? `<div><dt>${esc(t(lang, "verdict"))}</dt><dd>${verdictBlock(bounty)}</dd></div>
-      <div><dt>${esc(t(lang, "scores"))}</dt><dd class="mono">${esc(audit.completeness_score)} / ${esc(audit.scope_fit_score)} / ${esc(audit.quality_score)}</dd></div>
-      <div><dt>${esc(t(lang, "evidenceHash"))}</dt><dd class="mono">${esc(String(audit.evidence_hash || "").slice(0, 16))}\u2026</dd></div>` : ""}
-      ${bounty.settlement ? `<div><dt>${esc(t(lang, "payout"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.hunter_payout_units || 0))}</dd></div>
-      <div><dt>${esc(t(lang, "refund"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.issuer_refund_units || 0))}</dd></div>` : ""}
-      ${bounty.status === "VERDICT_PENDING" ? `<div><dt>\u2014</dt><dd>${esc(t(lang, "pendingExecution"))}</dd></div>` : ""}
-      ${bounty.challenge ? `<div><dt>\u2014</dt><dd>${esc(t(lang, "challengePending"))}</dd></div>` : ""}
-    </dl>
-    <div class="card-actions">${actions}</div>
-  </article>`;
+function renderBoard() {
+  const board = $("#kanban");
+  if (!snapshot) {
+    board.innerHTML = `<p class="empty">${esc2(readingBack ? t(lang, "readingBack") : t(lang, "unconfirmed"))}</p>`;
+    return;
+  }
+  board.innerHTML = renderKanban(
+    snapshot.bounties,
+    (key) => t(lang, key),
+    (bounty) => actionButtons(bounty)
+  );
 }
 function actionButtons(bounty) {
   if (!wallet) return "";
   const me = wallet.address;
   const btns = [];
   const add = (action, label) => btns.push(
-    `<button data-action="${action}" data-bounty="${esc(bounty.bounty_id)}">${esc(label)}</button>`
+    `<button data-action="${action}" data-bounty="${esc2(bounty.bounty_id)}">${esc2(label)}</button>`
   );
   if (bounty.status === "OPEN" && me !== (bounty.issuer || "").toLowerCase()) add("claim", t(lang, "claim"));
   if (bounty.status === "OPEN" && me === (bounty.issuer || "").toLowerCase()) add("cancel", t(lang, "cancel"));
@@ -22794,39 +22832,22 @@ function actionButtons(bounty) {
   if (bounty.status === "VERDICT_PENDING" && !bounty.challenge && (me === (bounty.issuer || "").toLowerCase() || me === (bounty.claimed_by || "").toLowerCase())) add("execute", t(lang, "execute"));
   return btns.join("");
 }
-function renderBoard() {
-  const board = $("#kanban");
-  if (!snapshot) {
-    board.innerHTML = `<p class="empty">${esc(readingBack ? t(lang, "readingBack") : t(lang, "unconfirmed"))}</p>`;
-    return;
-  }
-  const columns = { OPEN: [], CLAIMED: [], DELIVERED: [], VERDICT_PENDING: [], SETTLED: [] };
-  for (const bounty of Object.values(snapshot.bounties)) {
-    const status = bounty.status || "OPEN";
-    if (status === "OPEN") columns.OPEN.push(bounty);
-    else if (status === "CLAIMED") columns.CLAIMED.push(bounty);
-    else if (status === "DELIVERED" || status === "VERDICT_PENDING") columns[status === "DELIVERED" ? "DELIVERED" : "VERDICT_PENDING"].push(bounty);
-    else columns.SETTLED.push(bounty);
-  }
-  const col = (key, titleKey, list) => `<section class="kanban-col"><h3>${esc(t(lang, titleKey))} <span class="count">${list.length}</span></h3>${list.map(bountyCard).join("") || `<p class="empty">${esc(t(lang, "empty"))}</p>`}</section>`;
-  board.innerHTML = col("OPEN", "colOpen", columns.OPEN) + col("CLAIMED", "colClaimed", columns.CLAIMED) + col("REVIEW", "colReview", [...columns.DELIVERED, ...columns.VERDICT_PENDING]) + col("SETTLED", "colSettled", columns.SETTLED);
-}
 function renderLeaderboard() {
   const list = $("#leaderboard");
   if (!snapshot) {
-    list.innerHTML = `<p class="empty">${esc(readingBack ? t(lang, "readingBack") : t(lang, "unconfirmed"))}</p>`;
+    list.innerHTML = `<p class="empty">${esc2(readingBack ? t(lang, "readingBack") : t(lang, "unconfirmed"))}</p>`;
     return;
   }
   const hunters = Object.values(snapshot.hunters).sort((a, b) => b.reputation - a.reputation || b.settled - a.settled);
   if (hunters.length === 0) {
-    list.innerHTML = `<p class="empty">${esc(t(lang, "leaderboardEmpty"))}</p>`;
+    list.innerHTML = `<p class="empty">${esc2(t(lang, "leaderboardEmpty"))}</p>`;
     return;
   }
-  list.innerHTML = hunters.map((h, i) => `<button class="hunter-row" data-hunter="${esc(h.address)}">
+  list.innerHTML = hunters.map((h, i) => `<button class="hunter-row" data-hunter="${esc2(h.address)}">
     <span class="rank">${i + 1}</span>
-    <span class="hunter-id mono">${esc(shortAddr(h.address))}</span>
-    <span class="rep">\u2605 <span class="mono">${esc(h.reputation)}</span></span>
-    <span class="mini">${esc(t(lang, "settled"))} <span class="mono">${esc(h.settled)}</span></span>
+    <span class="hunter-id mono">${esc2(shortAddr2(h.address))}</span>
+    <span class="rep">\u2605 <span class="mono">${esc2(h.reputation)}</span></span>
+    <span class="mini">${esc2(t(lang, "settled"))} <span class="mono">${esc2(h.settled)}</span></span>
   </button>`).join("");
 }
 function renderDossier() {
@@ -22835,30 +22856,30 @@ function renderDossier() {
   const hunterAddr = selectedHunter || (bounty ? bounty.claimed_by : null);
   const hunter = hunterAddr && snapshot ? snapshot.hunters[hunterAddr.toLowerCase()] : null;
   if (!snapshot) {
-    panel.innerHTML = `<h2>${esc(t(lang, "dossier"))}</h2><p class="empty">${esc(t(lang, "unconfirmed"))}</p>`;
+    panel.innerHTML = `<h2>${esc2(t(lang, "dossier"))}</h2><p class="empty">${esc2(t(lang, "unconfirmed"))}</p>`;
     return;
   }
-  let html = `<h2>${esc(t(lang, "dossier"))}</h2>`;
+  let html = `<h2>${esc2(t(lang, "dossier"))}</h2>`;
   if (bounty) {
-    html += `<h3>${esc(bounty.bounty_id)}</h3>${bountyCard(bounty)}`;
+    html += `<h3>${esc2(bounty.bounty_id)}</h3>${bountyCard(bounty, (key) => t(lang, key), actionButtons(bounty))}`;
   }
   if (hunter) {
     html += `<dl class="hunter-stats">
-      <div><dt>${esc(t(lang, "reputation"))}</dt><dd class="mono">${esc(hunter.reputation)}</dd></div>
-      <div><dt>${esc(t(lang, "settled"))}</dt><dd class="mono">${esc(hunter.settled)}</dd></div>
-      <div><dt>${esc(t(lang, "accepted"))}</dt><dd class="mono">${esc(hunter.accepted)}</dd></div>
-      <div><dt>${esc(t(lang, "partial"))}</dt><dd class="mono">${esc(hunter.partial)}</dd></div>
-      <div><dt>${esc(t(lang, "rejected"))}</dt><dd class="mono">${esc(hunter.rejected)}</dd></div>
-      <div><dt>${esc(t(lang, "fake"))}</dt><dd class="mono">${esc(hunter.fake)}</dd></div>
+      <div><dt>${esc2(t(lang, "reputation"))}</dt><dd class="mono">${esc2(hunter.reputation)}</dd></div>
+      <div><dt>${esc2(t(lang, "settled"))}</dt><dd class="mono">${esc2(hunter.settled)}</dd></div>
+      <div><dt>${esc2(t(lang, "accepted"))}</dt><dd class="mono">${esc2(hunter.accepted)}</dd></div>
+      <div><dt>${esc2(t(lang, "partial"))}</dt><dd class="mono">${esc2(hunter.partial)}</dd></div>
+      <div><dt>${esc2(t(lang, "rejected"))}</dt><dd class="mono">${esc2(hunter.rejected)}</dd></div>
+      <div><dt>${esc2(t(lang, "fake"))}</dt><dd class="mono">${esc2(hunter.fake)}</dd></div>
     </dl>`;
   }
-  if (!bounty && !hunter) html += `<p class="empty">${esc(t(lang, "selectHunter"))}</p>`;
+  if (!bounty && !hunter) html += `<p class="empty">${esc2(t(lang, "selectHunter"))}</p>`;
   const canExport = Boolean(bounty && bounty.last_audit);
-  html += `<button id="export-btn" ${canExport ? "" : "disabled"}>${esc(t(lang, "exportDossier"))}</button>`;
-  if (!canExport) html += `<p class="hint">${esc(t(lang, "exportUnavailable"))}</p>`;
+  html += `<button id="export-btn" ${canExport ? "" : "disabled"}>${esc2(t(lang, "exportDossier"))}</button>`;
+  if (!canExport) html += `<p class="hint">${esc2(t(lang, "exportUnavailable"))}</p>`;
   if (wallet) {
-    html += `<div class="withdraw-box"><span>${esc(t(lang, "withdrawable"))}</span>
-      <button id="withdraw-btn">${esc(t(lang, "withdraw"))}</button></div>`;
+    html += `<div class="withdraw-box"><span>${esc2(t(lang, "withdrawable"))}</span>
+      <button id="withdraw-btn">${esc2(t(lang, "withdraw"))}</button></div>`;
   }
   panel.innerHTML = html;
   const exportBtn = $("#export-btn");
@@ -22891,27 +22912,27 @@ function renderStatus() {
   el.textContent = snapshot ? `${t(lang, "readBackOk")} \xB7 ${snapshot.readBackAt}` : readingBack ? t(lang, "readingBack") : t(lang, "unconfirmed");
   const totals = $("#ledger");
   if (!snapshot) {
-    totals.innerHTML = `<span>${esc(t(lang, "ledger"))}: ${esc(t(lang, "unconfirmed"))}</span>`;
+    totals.innerHTML = `<span>${esc2(t(lang, "ledger"))}: ${esc2(t(lang, "unconfirmed"))}</span>`;
     return;
   }
   const tot = snapshot.totals;
-  totals.innerHTML = `<span>${esc(t(lang, "totalReceived"))} <b class="mono">${esc(fmtGenFromWei(tot.total_received_wei))}</b></span>
-    <span>${esc(t(lang, "totalWithdrawn"))} <b class="mono">${esc(fmtGenFromWei(tot.total_withdrawn_wei))}</b></span>
-    <span>${esc(t(lang, "escrowed"))} <b class="mono">${esc(fmtGenFromWei(tot.escrowed_wei))}</b></span>`;
+  totals.innerHTML = `<span>${esc2(t(lang, "totalReceived"))} <b class="mono">${esc2(fmtGenFromWei(tot.total_received_wei))}</b></span>
+    <span>${esc2(t(lang, "totalWithdrawn"))} <b class="mono">${esc2(fmtGenFromWei(tot.total_withdrawn_wei))}</b></span>
+    <span>${esc2(t(lang, "escrowed"))} <b class="mono">${esc2(fmtGenFromWei(tot.escrowed_wei))}</b></span>`;
 }
 function renderWallet() {
   const el = $("#wallet-state");
   if (!wallet) {
-    el.innerHTML = `<button id="connect-btn">${esc(t(lang, "connectWallet"))}</button>
-      <button id="temp-btn">${esc(t(lang, "tempAccount"))}</button>`;
+    el.innerHTML = `<button id="connect-btn">${esc2(t(lang, "connectWallet"))}</button>
+      <button id="temp-btn">${esc2(t(lang, "tempAccount"))}</button>`;
     $("#connect-btn").onclick = connectInjected;
     $("#temp-btn").onclick = useTempAccount;
   } else {
-    el.innerHTML = `<span class="wallet-label">${esc(wallet.label)}</span>
-      <button id="disconnect-btn">${esc(t(lang, "disconnect"))}</button>`;
+    el.innerHTML = `<span class="wallet-label">${esc2(wallet.label)}</span>
+      <button id="disconnect-btn">${esc2(t(lang, "disconnect"))}</button>`;
     $("#disconnect-btn").onclick = disconnectWallet;
     if (wallet.kind === "temp") {
-      el.insertAdjacentHTML("beforeend", `<p class="hint">${esc(t(lang, "tempAccountNote"))}</p>`);
+      el.insertAdjacentHTML("beforeend", `<p class="hint">${esc2(t(lang, "tempAccountNote"))}</p>`);
     }
   }
 }

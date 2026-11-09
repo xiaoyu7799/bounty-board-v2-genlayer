@@ -9,6 +9,7 @@ import { studionet } from 'genlayer-js/chains';
 import { APP_CONFIG } from './config.js';
 import { STRINGS, t } from './i18n.js';
 import { buildDossier } from './dossier.js';
+import { renderKanban, bountyCard } from './kanban.js';
 
 const $ = (sel) => document.querySelector(sel);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -250,43 +251,18 @@ function esc(value) {
 // Rendering. Everything reads the snapshot; without one, fields show
 // "unconfirmed" and never a value.
 // ------------------------------------------------------------------
-function verdictBlock(bounty) {
-  const audit = bounty.pending_verdict || bounty.last_audit;
-  if (!audit) return `<span class="tag tag-mist">${esc(t(lang, 'unconfirmed'))}</span>`;
-  const v = audit.verdict;
-  if (v === 'ACCEPT') return `<span class="tag tag-pine">${esc(t(lang, 'acceptedLabel'))}</span>`;
-  if (v === 'PARTIAL') return `<span class="tag tag-ink">${esc(t(lang, 'partialLabel'))}</span>`;
-  if (v === 'REJECT') return `<span class="tag tag-signal">${esc(t(lang, 'rejectedLabel'))}</span>`;
-  if (v === 'FAKE') return `<span class="tag tag-signal">${esc(t(lang, 'fakeLabel'))}</span>`;
-  return `<span class="tag tag-mist">${esc(t(lang, 'unconfirmed'))}</span>`;
+function renderBoard() {
+  const board = $('#kanban');
+  if (!snapshot) {
+    board.innerHTML = `<p class="empty">${esc(readingBack ? t(lang, 'readingBack') : t(lang, 'unconfirmed'))}</p>`;
+    return;
+  }
+  board.innerHTML = renderKanban(
+    snapshot.bounties,
+    (key) => t(lang, key),
+    (bounty) => actionButtons(bounty),
+  );
 }
-
-function bountyCard(bounty) {
-  const audit = bounty.pending_verdict || bounty.last_audit;
-  const status = bounty.status || 'OPEN';
-  const actions = actionButtons(bounty);
-  return `<article class="bounty-card" data-bounty="${esc(bounty.bounty_id)}" tabindex="0">
-    <header><h3>${esc(bounty.bounty_id)}</h3><span class="status">${esc(status)}</span></header>
-    <p class="req">${esc(bounty.requirements || '')}</p>
-    <dl>
-      <div><dt>${esc(t(lang, 'amount'))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.amount || 0))}</dd></div>
-      <div><dt>${esc(t(lang, 'stake'))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.stake || 0))}</dd></div>
-      <div><dt>${esc(t(lang, 'issuer'))}</dt><dd class="mono">${esc(shortAddr(bounty.issuer))}</dd></div>
-      <div><dt>${esc(t(lang, 'hunter'))}</dt><dd class="mono">${esc(bounty.claimed_by ? shortAddr(bounty.claimed_by) : t(lang, 'empty'))}</dd></div>
-      <div><dt>${esc(t(lang, 'targetRepo'))}</dt><dd class="mono">${esc(bounty.expected_repo_slug || '')}</dd></div>
-      ${bounty.delivery ? `<div><dt>${esc(t(lang, 'prLink'))}</dt><dd><a class="mono" href="${esc(bounty.delivery.pr_url)}" target="_blank" rel="noreferrer">${esc(t(lang, 'githubPr'))} #${esc(bounty.delivery.pr_number)}</a></dd></div>` : ''}
-      ${audit ? `<div><dt>${esc(t(lang, 'verdict'))}</dt><dd>${verdictBlock(bounty)}</dd></div>
-      <div><dt>${esc(t(lang, 'scores'))}</dt><dd class="mono">${esc(audit.completeness_score)} / ${esc(audit.scope_fit_score)} / ${esc(audit.quality_score)}</dd></div>
-      <div><dt>${esc(t(lang, 'evidenceHash'))}</dt><dd class="mono">${esc(String(audit.evidence_hash || '').slice(0, 16))}…</dd></div>` : ''}
-      ${bounty.settlement ? `<div><dt>${esc(t(lang, 'payout'))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.hunter_payout_units || 0))}</dd></div>
-      <div><dt>${esc(t(lang, 'refund'))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.issuer_refund_units || 0))}</dd></div>` : ''}
-      ${bounty.status === 'VERDICT_PENDING' ? `<div><dt>—</dt><dd>${esc(t(lang, 'pendingExecution'))}</dd></div>` : ''}
-      ${bounty.challenge ? `<div><dt>—</dt><dd>${esc(t(lang, 'challengePending'))}</dd></div>` : ''}
-    </dl>
-    <div class="card-actions">${actions}</div>
-  </article>`;
-}
-
 function actionButtons(bounty) {
   if (!wallet) return '';
   const me = wallet.address;
@@ -307,28 +283,6 @@ function actionButtons(bounty) {
   if (bounty.status === 'VERDICT_PENDING' && !bounty.challenge &&
       (me === (bounty.issuer || '').toLowerCase() || me === (bounty.claimed_by || '').toLowerCase())) add('execute', t(lang, 'execute'));
   return btns.join('');
-}
-
-function renderBoard() {
-  const board = $('#kanban');
-  if (!snapshot) {
-    board.innerHTML = `<p class="empty">${esc(readingBack ? t(lang, 'readingBack') : t(lang, 'unconfirmed'))}</p>`;
-    return;
-  }
-  const columns = { OPEN: [], CLAIMED: [], DELIVERED: [], VERDICT_PENDING: [], SETTLED: [] };
-  for (const bounty of Object.values(snapshot.bounties)) {
-    const status = bounty.status || 'OPEN';
-    if (status === 'OPEN') columns.OPEN.push(bounty);
-    else if (status === 'CLAIMED') columns.CLAIMED.push(bounty);
-    else if (status === 'DELIVERED' || status === 'VERDICT_PENDING') columns[status === 'DELIVERED' ? 'DELIVERED' : 'VERDICT_PENDING'].push(bounty);
-    else columns.SETTLED.push(bounty);
-  }
-  const col = (key, titleKey, list) => `<section class="kanban-col"><h3>${esc(t(lang, titleKey))} <span class="count">${list.length}</span></h3>${list.map(bountyCard).join('') || `<p class="empty">${esc(t(lang, 'empty'))}</p>`}</section>`;
-  board.innerHTML =
-    col('OPEN', 'colOpen', columns.OPEN) +
-    col('CLAIMED', 'colClaimed', columns.CLAIMED) +
-    col('REVIEW', 'colReview', [...columns.DELIVERED, ...columns.VERDICT_PENDING]) +
-    col('SETTLED', 'colSettled', columns.SETTLED);
 }
 
 function renderLeaderboard() {
@@ -362,7 +316,7 @@ function renderDossier() {
   }
   let html = `<h2>${esc(t(lang, 'dossier'))}</h2>`;
   if (bounty) {
-    html += `<h3>${esc(bounty.bounty_id)}</h3>${bountyCard(bounty)}`;
+    html += `<h3>${esc(bounty.bounty_id)}</h3>${bountyCard(bounty, (key) => t(lang, key), actionButtons(bounty))}`;
   }
   if (hunter) {
     html += `<dl class="hunter-stats">
