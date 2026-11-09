@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bounty Board — 赏金板</title>
+<meta name="description" content="Post a bounty. Deliver with a GitHub pull request. Consensus judges delivery quality, escrow releases by tier.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dist/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1 data-i18n="title">赏金板</h1>
+    <p class="subtitle" data-i18n="subtitle">发赏金，用 PR 交付，共识裁决质量。</p>
+  </div>
+  <div class="wallet">
+    <button id="lang-toggle" type="button">EN</button>
+    <span id="wallet-state"></span>
+  </div>
+</header>
+<div class="trustbar">
+  <span><span data-i18n="network">网络</span>: Stable Studionet 61999</span>
+  <span><span data-i18n="contract">合约</span>: <a class="mono" href="https://explorer-studio.genlayer.com/address/0x5991919D85E320F7dBaf85374267F6a4065B0172" target="_blank" rel="noreferrer">0x5991919D…0172</a></span>
+  <span id="readback-status">未确认</span>
+  <button id="refresh-btn" type="button">↻</button>
+</div>
+<div id="notice" role="status"></div>
+<main class="layout">
+  <section class="leaderboard-col" aria-label="leaderboard">
+    <h2 data-i18n="leaderboard">猎人榜</h2>
+    <div id="leaderboard"></div>
+  </section>
+  <section aria-label="bounties">
+    <h2 data-i18n="kanban">赏金看板</h2>
+    <div id="kanban" class="kanban"></div>
+  </section>
+  <aside class="dossier-col" aria-label="dossier">
+    <div id="dossier"></div>
+    <div id="ledger"></div>
+  </aside>
+</main>
+<section class="post-panel">
+  <h2 data-i18n="postBounty">发布赏金</h2>
+  <form id="post-form">
+    <div><label for="post-id" data-i18n="bountyId">赏金 ID</label><input id="post-id" required maxlength="32" placeholder="bb-0001"></div>
+    <div><label for="post-amount"><span data-i18n="amount">赏金</span> (GEN)</label><input id="post-amount" type="number" required min="1" max="200" step="0.001" value="10"></div>
+    <div><label for="post-minrep" data-i18n="minReputation">最低声誉</label><input id="post-minrep" type="number" min="0" value="0"></div>
+    <div><label for="post-repo" data-i18n="targetRepo">目标仓库</label><input id="post-repo" required maxlength="100" value="xiaoyu7799/bounty-board-v2-genlayer"></div>
+    <div class="full"><label for="post-req" data-i18n="requirements">任务要求</label><textarea id="post-req" required maxlength="4000"></textarea></div>
+    <div class="full"><button type="submit" data-i18n="post">发布</button></div>
+  </form>
+</section>
+<footer>
+  <span data-i18n="sourceLinks">来源链接</span>:
+  <a href="https://github.com/xiaoyu7799/bounty-board-v2-genlayer" target="_blank" rel="noreferrer">GitHub</a> ·
+  <a href="https://explorer-studio.genlayer.com/address/0x5991919D85E320F7dBaf85374267F6a4065B0172" target="_blank" rel="noreferrer">Explorer</a>
+</footer>
+<script type="module" src="dist/app.js"></script>
+</body>
+</html>
