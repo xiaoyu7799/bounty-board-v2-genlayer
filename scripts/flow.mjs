@@ -166,8 +166,14 @@ async function mirrorPreflight(bountyId, cfg, mergeSha) {
 }
 
 // Evaluate with retries only after a FINALIZED error/no-majority receipt.
+// Evaluate with retries. GenVM validators call the GitHub API without
+// authentication (60 requests/hour per egress IP, shared across the
+// whole Studionet pool), so a busy hour can fail several attempts in a
+// row with GITHUB_API_HTTP_ERROR. Ten attempts at 120s gaps span
+// roughly an hour, crossing the rate-limit reset boundary. A wrong
+// verdict still throws immediately; only consensus failure retries.
 async function evaluateWithRetry(bountyId, method, expectedVerdict, label) {
-  for (let attempt = 1; attempt <= 5; attempt++) {
+  for (let attempt = 1; attempt <= 10; attempt++) {
     const { hash, receipt, summary } = await call(issuer, method, [bountyId]);
     if (receipt.status === 'FINALIZED' && receipt.result_name === 'MAJORITY_AGREE' &&
         summary.leader_execution === 'SUCCESS') {
@@ -179,8 +185,8 @@ async function evaluateWithRetry(bountyId, method, expectedVerdict, label) {
       }
       return { hash, bounty };
     }
-    console.log(JSON.stringify({ evaluate: label, attempt, hash, ...summary, retry_in_s: 60 }));
-    await sleep(60000);
+    console.log(JSON.stringify({ evaluate: label, attempt, hash, ...summary, retry_in_s: 120 }));
+    await sleep(120000);
   }
   throw Error(`EVALUATE_RETRY_EXHAUSTED:${label}`);
 }
