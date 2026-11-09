@@ -169,8 +169,10 @@ async function mirrorPreflight(bountyId, cfg, mergeSha) {
 // Evaluate with retries. GenVM validators call the GitHub API without
 // authentication (60 requests/hour per egress IP, shared across the
 // whole Studionet pool), so a busy hour can fail several attempts in a
-// row with GITHUB_API_HTTP_ERROR. Ten attempts at 120s gaps span
-// roughly an hour, crossing the rate-limit reset boundary. A wrong
+// row with GITHUB_API_HTTP_ERROR. Each attempt burns ~20 API calls from
+// the shared pool, so retries use growing gaps: the rolling window frees
+// roughly one call per minute, and a 600s gap restores about ten calls.
+// Ten attempts with gaps 120s..600s span roughly an hour. A wrong
 // verdict still throws immediately; only consensus failure retries.
 async function evaluateWithRetry(bountyId, method, expectedVerdict, label) {
   for (let attempt = 1; attempt <= 10; attempt++) {
@@ -185,8 +187,9 @@ async function evaluateWithRetry(bountyId, method, expectedVerdict, label) {
       }
       return { hash, bounty };
     }
-    console.log(JSON.stringify({ evaluate: label, attempt, hash, ...summary, retry_in_s: 120 }));
-    await sleep(120000);
+    const gapS = Math.min(120 * attempt, 600);
+    console.log(JSON.stringify({ evaluate: label, attempt, hash, ...summary, retry_in_s: gapS }));
+    await sleep(gapS * 1000);
   }
   throw Error(`EVALUATE_RETRY_EXHAUSTED:${label}`);
 }
@@ -245,16 +248,27 @@ async function executeAndWithdraw(c, label) {
 }
 
 // -- cases ---------------------------------------------------------------------
+// Pause between evaluate-heavy cases so the shared GitHub API quota
+// (60/hour per egress IP) recovers: bb-0002 always runs after bb-0001
+// has spent the pool, which is why it failed 10/10 in run 4 while
+// bb-0001 got through.
+async function pauseBetween(doneLabel, nextLabel) {
+  console.log(JSON.stringify({ pause_between_cases: `${doneLabel} -> ${nextLabel}`, seconds: 600 }));
+  await sleep(600000);
+}
+
 // bb-0001 ACCEPT
 {
   const c = await runCase('bb-0001', PRS['bb-0001']);
   await executeAndWithdraw(c, 'bb-0001');
 }
+await pauseBetween('bb-0001', 'bb-0002');
 // bb-0002 PARTIAL
 {
   const c = await runCase('bb-0002', PRS['bb-0002']);
   await executeAndWithdraw(c, 'bb-0002');
 }
+await pauseBetween('bb-0002', 'bb-0003');
 // bb-0003 REJECT then challenge flip to ACCEPT
 {
   const c = await runCase('bb-0003', PRS['bb-0003']);
@@ -279,6 +293,7 @@ async function executeAndWithdraw(c, label) {
   c.verdict_round2 = ev.bounty.pending_verdict;
   await executeAndWithdraw(c, 'bb-0003');
 }
+await pauseBetween('bb-0003', 'bb-0004');
 // bb-0004 FAKE: self-merged PR in the hunter's own repository
 {
   const c = await runCase('bb-0004', PRS['bb-0004']);
