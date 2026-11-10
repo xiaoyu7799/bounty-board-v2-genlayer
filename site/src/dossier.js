@@ -91,3 +91,82 @@ export function buildDossier({ bounty, hunter, totals, readBackAt }) {
     },
   };
 }
+
+// Hunter dossier builder. Pure function: its ONLY input is FINALIZED get_*
+// readback JSON — the hunter record, the ledger totals, and the hunter's
+// own bounties with their audits. Every exported field is copied from the
+// readback, never computed locally, never defaulted. Export is refused
+// unless the hunter record comes from a FINALIZED readback.
+export function buildHunterDossier({ hunter, bounties, totals, readBackAt }) {
+  if (!hunter || typeof hunter !== 'object') {
+    return { ok: false, reason: 'NO_READBACK' };
+  }
+  if (!totals || typeof totals !== 'object') {
+    return { ok: false, reason: 'NO_READBACK' };
+  }
+  const address = (hunter.address || '').toLowerCase();
+  const mine = Object.values(bounties || {})
+    .filter((b) => (b.claimed_by || '').toLowerCase() === address)
+    .sort((a, b) => String(a.bounty_id).localeCompare(String(b.bounty_id)))
+    .map((b) => {
+      // Same audit rule as the card: pending verdict while in review, else
+      // the settled last audit. Rationale is copied verbatim from readback.
+      const audit = b.pending_verdict || b.last_audit || null;
+      return {
+        bounty_id: b.bounty_id,
+        status: b.status,
+        expected_repo_slug: b.expected_repo_slug,
+        delivery: b.delivery
+          ? {
+              pr_url: b.delivery.pr_url,
+              pr_number: b.delivery.pr_number,
+              note_path: b.delivery.note_path,
+            }
+          : null,
+        audit: audit
+          ? {
+              verdict: audit.verdict,
+              completeness_score: audit.completeness_score,
+              scope_fit_score: audit.scope_fit_score,
+              quality_score: audit.quality_score,
+              evidence_hash: audit.evidence_hash,
+              rationale: audit.rationale,
+              round: audit.round,
+            }
+          : null,
+        settlement: b.settlement
+          ? {
+              verdict: b.settlement.verdict,
+              hunter_payout_units: b.settlement.hunter_payout_units,
+              issuer_refund_units: b.settlement.issuer_refund_units,
+              hunter_payout_wei: b.settlement.hunter_payout_wei,
+              issuer_refund_wei: b.settlement.issuer_refund_wei,
+              reputation_delta: b.settlement.reputation_delta,
+            }
+          : null,
+      };
+    });
+  return {
+    ok: true,
+    dossier: {
+      hunter: {
+        address: hunter.address,
+        reputation: hunter.reputation,
+        settled: hunter.settled,
+        accepted: hunter.accepted,
+        partial: hunter.partial,
+        rejected: hunter.rejected,
+        fake: hunter.fake,
+      },
+      bounties: mine,
+      ledger_totals_wei: {
+        total_received_wei: totals.total_received_wei,
+        total_withdrawn_wei: totals.total_withdrawn_wei,
+        withdrawable_wei: totals.withdrawable_wei,
+        escrowed_wei: totals.escrowed_wei,
+      },
+      read_back_at: readBackAt || null,
+      source: 'FINALIZED get_hunter / get_all_bounties / get_ledger_totals readback',
+    },
+  };
+}

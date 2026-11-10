@@ -55,7 +55,8 @@ export function bountyCard(bounty, t, actionsHtml = '') {
       ${bounty.delivery ? `<div><dt>${esc(t('prLink'))}</dt><dd><a class="mono" href="${esc(bounty.delivery.pr_url)}" target="_blank" rel="noreferrer">${esc(t('githubPr'))} #${esc(bounty.delivery.pr_number)}</a></dd></div>` : ''}
       ${audit ? `<div><dt>${esc(t('verdict'))}</dt><dd>${verdictTag(audit, t)}</dd></div>
       <div><dt>${esc(t('scores'))}</dt><dd class="mono">${esc(audit.completeness_score)} / ${esc(audit.scope_fit_score)} / ${esc(audit.quality_score)}</dd></div>
-      <div><dt>${esc(t('evidenceHash'))}</dt><dd class="mono">${esc(String(audit.evidence_hash || '').slice(0, 16))}…</dd></div>` : ''}
+      <div><dt>${esc(t('evidenceHash'))}</dt><dd class="mono">${esc(String(audit.evidence_hash || '').slice(0, 16))}…</dd></div>
+      ${audit.rationale ? `<div><dt>${esc(t('rationale'))}</dt><dd>${esc(audit.rationale)}</dd></div>` : ''}` : ''}
       ${bounty.settlement ? `<div><dt>${esc(t('payout'))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.hunter_payout_units || 0, t))}</dd></div>
       <div><dt>${esc(t('refund'))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.issuer_refund_units || 0, t))}</dd></div>` : ''}
       ${bounty.status === 'VERDICT_PENDING' ? `<div><dt>—</dt><dd>${esc(t('pendingExecution'))}</dd></div>` : ''}

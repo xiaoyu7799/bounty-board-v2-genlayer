@@ -22305,6 +22305,9 @@ var STRINGS = {
     recordContradiction: "Record contradiction",
     exportDossier: "Export dossier (JSON)",
     exportUnavailable: "Not read back yet \u2014 cannot export",
+    exportSelectFirst: "Select a settled bounty or a hunter to export their dossier",
+    exportNotSettled: "This bounty is not settled yet \u2014 there is no audit to export",
+    rationale: "Reason",
     unconfirmed: "Unconfirmed",
     readingBack: "Reading back from chain\u2026",
     readBackOk: "Read back from FINALIZED state",
@@ -22406,6 +22409,9 @@ var STRINGS = {
     recordContradiction: "\u8BB0\u5F55\u5F02\u8BAE",
     exportDossier: "\u5BFC\u51FA\u6863\u6848\uFF08JSON\uFF09",
     exportUnavailable: "\u5C1A\u672A\u8BFB\u56DE\uFF0C\u4E0D\u53EF\u5BFC\u51FA",
+    exportSelectFirst: "\u8BF7\u9009\u62E9\u4E00\u4E2A\u5DF2\u7ED3\u7B97\u8D4F\u91D1\u6216\u4E00\u4F4D\u730E\u4EBA\uFF0C\u518D\u5BFC\u51FA\u6863\u6848",
+    exportNotSettled: "\u8BE5\u8D4F\u91D1\u5C1A\u672A\u7ED3\u7B97\uFF0C\u6CA1\u6709\u53EF\u5BFC\u51FA\u7684\u88C1\u51B3\u6863\u6848",
+    rationale: "\u88C1\u51B3\u539F\u56E0",
     unconfirmed: "\u672A\u786E\u8BA4",
     readingBack: "\u6B63\u5728\u4ECE\u94FE\u4E0A\u8BFB\u56DE\u2026",
     readBackOk: "\u5DF2\u4ECE FINALIZED \u72B6\u6001\u8BFB\u56DE",
@@ -22532,6 +22538,68 @@ function buildDossier({ bounty, hunter, totals, readBackAt }) {
     }
   };
 }
+function buildHunterDossier({ hunter, bounties, totals, readBackAt }) {
+  if (!hunter || typeof hunter !== "object") {
+    return { ok: false, reason: "NO_READBACK" };
+  }
+  if (!totals || typeof totals !== "object") {
+    return { ok: false, reason: "NO_READBACK" };
+  }
+  const address = (hunter.address || "").toLowerCase();
+  const mine = Object.values(bounties || {}).filter((b) => (b.claimed_by || "").toLowerCase() === address).sort((a, b) => String(a.bounty_id).localeCompare(String(b.bounty_id))).map((b) => {
+    const audit = b.pending_verdict || b.last_audit || null;
+    return {
+      bounty_id: b.bounty_id,
+      status: b.status,
+      expected_repo_slug: b.expected_repo_slug,
+      delivery: b.delivery ? {
+        pr_url: b.delivery.pr_url,
+        pr_number: b.delivery.pr_number,
+        note_path: b.delivery.note_path
+      } : null,
+      audit: audit ? {
+        verdict: audit.verdict,
+        completeness_score: audit.completeness_score,
+        scope_fit_score: audit.scope_fit_score,
+        quality_score: audit.quality_score,
+        evidence_hash: audit.evidence_hash,
+        rationale: audit.rationale,
+        round: audit.round
+      } : null,
+      settlement: b.settlement ? {
+        verdict: b.settlement.verdict,
+        hunter_payout_units: b.settlement.hunter_payout_units,
+        issuer_refund_units: b.settlement.issuer_refund_units,
+        hunter_payout_wei: b.settlement.hunter_payout_wei,
+        issuer_refund_wei: b.settlement.issuer_refund_wei,
+        reputation_delta: b.settlement.reputation_delta
+      } : null
+    };
+  });
+  return {
+    ok: true,
+    dossier: {
+      hunter: {
+        address: hunter.address,
+        reputation: hunter.reputation,
+        settled: hunter.settled,
+        accepted: hunter.accepted,
+        partial: hunter.partial,
+        rejected: hunter.rejected,
+        fake: hunter.fake
+      },
+      bounties: mine,
+      ledger_totals_wei: {
+        total_received_wei: totals.total_received_wei,
+        total_withdrawn_wei: totals.total_withdrawn_wei,
+        withdrawable_wei: totals.withdrawable_wei,
+        escrowed_wei: totals.escrowed_wei
+      },
+      read_back_at: readBackAt || null,
+      source: "FINALIZED get_hunter / get_all_bounties / get_ledger_totals readback"
+    }
+  };
+}
 
 // site/src/kanban.js
 function columnKeyForStatus(status) {
@@ -22579,7 +22647,8 @@ function bountyCard(bounty, t2, actionsHtml = "") {
       ${bounty.delivery ? `<div><dt>${esc(t2("prLink"))}</dt><dd><a class="mono" href="${esc(bounty.delivery.pr_url)}" target="_blank" rel="noreferrer">${esc(t2("githubPr"))} #${esc(bounty.delivery.pr_number)}</a></dd></div>` : ""}
       ${audit ? `<div><dt>${esc(t2("verdict"))}</dt><dd>${verdictTag(audit, t2)}</dd></div>
       <div><dt>${esc(t2("scores"))}</dt><dd class="mono">${esc(audit.completeness_score)} / ${esc(audit.scope_fit_score)} / ${esc(audit.quality_score)}</dd></div>
-      <div><dt>${esc(t2("evidenceHash"))}</dt><dd class="mono">${esc(String(audit.evidence_hash || "").slice(0, 16))}\u2026</dd></div>` : ""}
+      <div><dt>${esc(t2("evidenceHash"))}</dt><dd class="mono">${esc(String(audit.evidence_hash || "").slice(0, 16))}\u2026</dd></div>
+      ${audit.rationale ? `<div><dt>${esc(t2("rationale"))}</dt><dd>${esc(audit.rationale)}</dd></div>` : ""}` : ""}
       ${bounty.settlement ? `<div><dt>${esc(t2("payout"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.hunter_payout_units || 0, t2))}</dd></div>
       <div><dt>${esc(t2("refund"))}</dt><dd class="mono">${esc(fmtGenFromUnits(bounty.settlement.issuer_refund_units || 0, t2))}</dd></div>` : ""}
       ${bounty.status === "VERDICT_PENDING" ? `<div><dt>\u2014</dt><dd>${esc(t2("pendingExecution"))}</dd></div>` : ""}
@@ -22874,9 +22943,12 @@ function renderDossier() {
     </dl>`;
   }
   if (!bounty && !hunter) html += `<p class="empty">${esc2(t(lang, "selectHunter"))}</p>`;
-  const canExport = Boolean(bounty && bounty.last_audit);
+  const canExport = Boolean(snapshot && hunter);
   html += `<button id="export-btn" ${canExport ? "" : "disabled"}>${esc2(t(lang, "exportDossier"))}</button>`;
-  if (!canExport) html += `<p class="hint">${esc2(t(lang, "exportUnavailable"))}</p>`;
+  if (!canExport) {
+    const hintKey = !snapshot ? "exportUnavailable" : bounty || hunter ? "exportNotSettled" : "exportSelectFirst";
+    html += `<p class="hint">${esc2(t(lang, hintKey))}</p>`;
+  }
   if (wallet) {
     html += `<div class="withdraw-box"><span>${esc2(t(lang, "withdrawable"))}</span>
       <button id="withdraw-btn">${esc2(t(lang, "withdraw"))}</button></div>`;
@@ -22889,23 +22961,37 @@ function renderDossier() {
     await runWrite(t(lang, "withdraw"), "withdraw", []);
   };
 }
-async function exportDossier() {
-  if (!snapshot || !selectedBountyId) return;
-  const bounty = snapshot.bounties[selectedBountyId];
-  if (!bounty) return;
-  const hunter = bounty.claimed_by ? snapshot.hunters[bounty.claimed_by.toLowerCase()] : null;
-  const result = buildDossier({ bounty, hunter, totals: snapshot.totals, readBackAt: snapshot.readBackAt });
-  if (!result.ok) {
-    setNotice(`${t(lang, "exportUnavailable")} (${result.reason})`, "error");
-    return;
-  }
-  const blob = new Blob([JSON.stringify(result.dossier, null, 2)], { type: "application/json" });
+function downloadJson(filename, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `dossier-${bounty.bounty_id}.json`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+async function exportDossier() {
+  if (!snapshot) return;
+  const bounty = selectedBountyId ? snapshot.bounties[selectedBountyId] : null;
+  const hunterAddr = selectedHunter || (bounty ? bounty.claimed_by : null);
+  const hunter = hunterAddr ? snapshot.hunters[hunterAddr.toLowerCase()] : null;
+  if (bounty && bounty.last_audit && hunter) {
+    const result = buildDossier({ bounty, hunter, totals: snapshot.totals, readBackAt: snapshot.readBackAt });
+    if (!result.ok) {
+      setNotice(`${t(lang, "exportUnavailable")} (${result.reason})`, "error");
+      return;
+    }
+    downloadJson(`dossier-${bounty.bounty_id}.json`, result.dossier);
+    return;
+  }
+  if (hunter) {
+    const result = buildHunterDossier({ hunter, bounties: snapshot.bounties, totals: snapshot.totals, readBackAt: snapshot.readBackAt });
+    if (!result.ok) {
+      setNotice(`${t(lang, "exportUnavailable")} (${result.reason})`, "error");
+      return;
+    }
+    downloadJson(`dossier-hunter-${hunter.address.slice(0, 10)}.json`, result.dossier);
+  }
 }
 function renderStatus() {
   const el = $("#readback-status");

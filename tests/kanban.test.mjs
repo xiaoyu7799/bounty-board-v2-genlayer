@@ -14,7 +14,7 @@ const STRINGS = {
   amount: 'Bounty', stake: 'Stake', issuer: 'Issuer', hunter: 'Hunter',
   targetRepo: 'Target repository', prLink: 'Delivery PR', githubPr: 'GitHub PR',
   verdict: 'Verdict', scores: 'Scores', evidenceHash: 'Evidence hash',
-  payout: 'Hunter payout', refund: 'Issuer refund',
+  rationale: 'Reason', payout: 'Hunter payout', refund: 'Issuer refund',
   pendingExecution: 'Pending execution — no payout yet',
   challengePending: 'Challenge pending — execution locked',
   empty: '—', genUnit: 'GEN',
@@ -87,4 +87,43 @@ test('renderKanban groups four columns and counts cards', () => {
   for (const id of ['bb-1', 'bb-2', 'bb-3', 'bb-4', 'bb-5']) {
     assert.ok(html.includes(id), `missing ${id}`);
   }
+});
+
+test('bountyCard shows each audit rationale from the readback, escaped', () => {
+  const html = bountyCard(bounty({
+    status: 'SETTLED_FAKE',
+    claimed_by: '0x' + '22'.repeat(20),
+    last_audit: {
+      verdict: 'FAKE', completeness_score: 0, scope_fit_score: 0, quality_score: 0,
+      evidence_hash: '19'.repeat(32), rationale: 'PR is not in the bounty target repository.',
+      round: 1,
+    },
+    settlement: { hunter_payout_units: 0, issuer_refund_units: 11000 },
+  }), t);
+  assert.match(html, /PR is not in the bounty target repository\./);
+  const html2 = bountyCard(bounty({
+    status: 'SETTLED_FAKE',
+    claimed_by: '0x' + '22'.repeat(20),
+    last_audit: {
+      verdict: 'FAKE', completeness_score: 0, scope_fit_score: 0, quality_score: 0,
+      evidence_hash: 'ab'.repeat(32), rationale: 'Code change is below the minimum <b>2 files</b>.',
+      round: 1,
+    },
+    settlement: { hunter_payout_units: 0, issuer_refund_units: 11000 },
+  }), t);
+  assert.match(html2, /Code change is below the minimum &lt;b&gt;2 files&lt;\/b&gt;\./);
+  assert.doesNotMatch(html2, /<b>2 files<\/b>/);
+});
+
+test('bountyCard omits the rationale row when the audit has none', () => {
+  const html = bountyCard(bounty({
+    status: 'SETTLED_ACCEPT',
+    claimed_by: '0x' + '22'.repeat(20),
+    last_audit: {
+      verdict: 'ACCEPT', completeness_score: 90, scope_fit_score: 90, quality_score: 85,
+      evidence_hash: 'ab'.repeat(32), round: 1,
+    },
+    settlement: { hunter_payout_units: 11000, issuer_refund_units: 0 },
+  }), t);
+  assert.doesNotMatch(html, /Reason/);
 });

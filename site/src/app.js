@@ -8,7 +8,7 @@ import { encodeFunctionData } from 'viem';
 import { studionet } from 'genlayer-js/chains';
 import { APP_CONFIG } from './config.js';
 import { STRINGS, t } from './i18n.js';
-import { buildDossier } from './dossier.js';
+import { buildDossier, buildHunterDossier } from './dossier.js';
 import { renderKanban, bountyCard } from './kanban.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -329,10 +329,19 @@ function renderDossier() {
     </dl>`;
   }
   if (!bounty && !hunter) html += `<p class="empty">${esc(t(lang, 'selectHunter'))}</p>`;
-  // Export: only from a FINALIZED readback with a settled last_audit.
-  const canExport = Boolean(bounty && bounty.last_audit);
+  // Export: wired to the FINALIZED readback. The button is enabled whenever
+  // the panel shows readback content that can be exported — a settled bounty
+  // (its audit) or a hunter record. Before any readback it stays disabled
+  // with the honest "not read back yet" caption; after a readback the caption
+  // never claims no readback happened. (A rendered snapshot always carries
+  // the hunter record for every claimed bounty, so `hunter` being set is
+  // the gate; the bounty path additionally needs a settled last_audit.)
+  const canExport = Boolean(snapshot && hunter);
   html += `<button id="export-btn" ${canExport ? '' : 'disabled'}>${esc(t(lang, 'exportDossier'))}</button>`;
-  if (!canExport) html += `<p class="hint">${esc(t(lang, 'exportUnavailable'))}</p>`;
+  if (!canExport) {
+    const hintKey = !snapshot ? 'exportUnavailable' : (bounty || hunter) ? 'exportNotSettled' : 'exportSelectFirst';
+    html += `<p class="hint">${esc(t(lang, hintKey))}</p>`;
+  }
   // Withdrawable balance of the connected wallet (readback only).
   if (wallet) {
     html += `<div class="withdraw-box"><span>${esc(t(lang, 'withdrawable'))}</span>
@@ -347,23 +356,41 @@ function renderDossier() {
   };
 }
 
-async function exportDossier() {
-  if (!snapshot || !selectedBountyId) return;
-  const bounty = snapshot.bounties[selectedBountyId];
-  if (!bounty) return;
-  const hunter = bounty.claimed_by ? snapshot.hunters[bounty.claimed_by.toLowerCase()] : null;
-  const result = buildDossier({ bounty, hunter, totals: snapshot.totals, readBackAt: snapshot.readBackAt });
-  if (!result.ok) {
-    setNotice(`${t(lang, 'exportUnavailable')} (${result.reason})`, 'error');
-    return;
-  }
-  const blob = new Blob([JSON.stringify(result.dossier, null, 2)], { type: 'application/json' });
+function downloadJson(filename, data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `dossier-${bounty.bounty_id}.json`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+async function exportDossier() {
+  if (!snapshot) return;
+  const bounty = selectedBountyId ? snapshot.bounties[selectedBountyId] : null;
+  const hunterAddr = selectedHunter || (bounty ? bounty.claimed_by : null);
+  const hunter = hunterAddr ? snapshot.hunters[hunterAddr.toLowerCase()] : null;
+  // A settled bounty exports its own dossier (audit + settlement + hunter).
+  if (bounty && bounty.last_audit && hunter) {
+    const result = buildDossier({ bounty, hunter, totals: snapshot.totals, readBackAt: snapshot.readBackAt });
+    if (!result.ok) {
+      setNotice(`${t(lang, 'exportUnavailable')} (${result.reason})`, 'error');
+      return;
+    }
+    downloadJson(`dossier-${bounty.bounty_id}.json`, result.dossier);
+    return;
+  }
+  // Otherwise the panel shows a hunter record: export the hunter dossier
+  // (hunter stats + that hunter's bounties with their audits + totals).
+  if (hunter) {
+    const result = buildHunterDossier({ hunter, bounties: snapshot.bounties, totals: snapshot.totals, readBackAt: snapshot.readBackAt });
+    if (!result.ok) {
+      setNotice(`${t(lang, 'exportUnavailable')} (${result.reason})`, 'error');
+      return;
+    }
+    downloadJson(`dossier-hunter-${hunter.address.slice(0, 10)}.json`, result.dossier);
+  }
 }
 
 function renderStatus() {

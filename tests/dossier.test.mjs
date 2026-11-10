@@ -2,7 +2,7 @@
 // Run: node --test tests/dossier.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDossier } from '../site/src/dossier.js';
+import { buildDossier, buildHunterDossier } from '../site/src/dossier.js';
 
 function settledBounty(verdict, payoutUnits = 11000, refundUnits = 0) {
   return {
@@ -85,4 +85,37 @@ test('no readback, or no settled audit, refuses the export', () => {
   pending.status = 'VERDICT_PENDING';
   assert.equal(buildDossier({ bounty: pending, hunter, totals }).ok, false);
   assert.equal(buildDossier({ bounty: settledBounty('ACCEPT'), hunter: null, totals }).ok, false);
+});
+
+test('hunter dossier exports the readback hunter record plus only their bounties', () => {
+  const mine = settledBounty('FAKE', 0, 11000);
+  mine.bounty_id = 'bb-0007';
+  mine.last_audit.rationale = 'PR is not in the bounty target repository.';
+  const other = settledBounty('ACCEPT');
+  other.bounty_id = 'bb-0001';
+  other.claimed_by = '0x' + '33'.repeat(20);
+  const bounties = { 'bb-0007': mine, 'bb-0001': other };
+  const result = buildHunterDossier({ hunter, bounties, totals, readBackAt: '2026-11-10T00:00:00.000Z' });
+  assert.equal(result.ok, true);
+  assert.equal(result.dossier.hunter.reputation, 5);
+  assert.equal(result.dossier.hunter.settled, 1);
+  assert.equal(result.dossier.bounties.length, 1);
+  assert.equal(result.dossier.bounties[0].bounty_id, 'bb-0007');
+  assert.equal(result.dossier.bounties[0].audit.verdict, 'FAKE');
+  assert.equal(result.dossier.bounties[0].audit.rationale, 'PR is not in the bounty target repository.');
+  assert.equal(result.dossier.bounties[0].settlement.issuer_refund_units, 11000);
+  assert.equal(result.dossier.ledger_totals_wei.total_received_wei, 11000 * 10 ** 15);
+  assert.equal(result.dossier.read_back_at, '2026-11-10T00:00:00.000Z');
+});
+
+test('hunter dossier refuses without a readback hunter record or totals', () => {
+  assert.equal(buildHunterDossier({ hunter: null, bounties: {}, totals }).ok, false);
+  assert.equal(buildHunterDossier({ hunter, bounties: {}, totals: null }).ok, false);
+});
+
+test('hunter dossier with no bounties of their own still exports stats and totals', () => {
+  const result = buildHunterDossier({ hunter, bounties: {}, totals, readBackAt: null });
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.dossier.bounties, []);
+  assert.equal(result.dossier.read_back_at, null);
 });
