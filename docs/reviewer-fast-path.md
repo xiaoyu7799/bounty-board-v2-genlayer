@@ -1,7 +1,7 @@
 # Reviewer fast path
 
-Contract: `0x5991919D85E320F7dBaf85374267F6a4065B0172` (Stable Studionet, 61999)
-Explorer: https://explorer-studio.genlayer.com/address/0x5991919D85E320F7dBaf85374267F6a4065B0172
+Contract: `0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3` (Stable Studionet, 61999)
+Explorer: https://explorer-studio.genlayer.com/address/0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3
 Website: https://xiaoyu7799.github.io/bounty-board-v2-genlayer/
 Evidence: `evidence/evidence.json` (every core transaction: hash,
 FINALIZED receipt, read-back).
@@ -13,7 +13,7 @@ FINALIZED receipt, read-back).
 node -e "import('./scripts/network.mjs').then(async (n) => {
   const { createHash } = await import('node:crypto');
   const fs = await import('node:fs');
-  const code = await n.rpc('gen_getContractCode', ['0x5991919D85E320F7dBaf85374267F6a4065B0172']);
+  const code = await n.rpc('gen_getContractCode', ['0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3']);
   const sha = createHash('sha256').update(Buffer.from(code, 'base64').toString('utf8')).digest('hex');
   console.log('deployed:', sha);
   console.log('repo    :', createHash('sha256').update(fs.readFileSync('contracts/bounty_board.py')).digest('hex'));
@@ -41,7 +41,13 @@ Or read directly: `get_all_bounties`, `get_ledger_totals`,
 - `bb-0003` → first REJECT, then challenged with a new PR and flipped to
   SETTLED_ACCEPT.
 - `bb-0004` → SETTLED_FAKE: PR self-merged in the hunter's own
-  repository, outside the target repository; stake slashed to the issuer.
+  repository — but the bounty itself targeted that repository, so the
+  FAKE came from the code-change gate (0 code files / 0 changed lines),
+  not the repository gate; stake slashed to the issuer.
+- `bb-0007` → SETTLED_FAKE via REPO_MISMATCH: the bounty targets
+  `xiaoyu7799/bounty-board-v2-genlayer` while the delivered PR is
+  `xiaoyu7799/bounty-fake-delivery/pull/1`; consensus judged it FAKE
+  with the stake slashed.
 
 ## 4. Check the money
 

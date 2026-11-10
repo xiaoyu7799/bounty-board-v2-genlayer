@@ -47,11 +47,11 @@ rejected and the full value is credited back to the sender.
 ## Contract
 
 - Network: Stable Studionet, Chain ID 61999, RPC https://studio.genlayer.com/api
-- Contract: `0x5991919D85E320F7dBaf85374267F6a4065B0172`
+- Contract: `0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3`
 - Source: `contracts/bounty_board.py`
 - Source SHA-256: `f7f6a84f66c69aaa3e77ffde8fbd9f60b667a689baee3c2e746e9ba31a061964`
   (matches the deployed code)
-- Deploy transaction: `0x7d15c4a83cf349361892cd546cc5d838225949e4f5423cfd4457f1070db0b041`
+- Deploy transaction: `0x6e1509c785b0f19f3ba2294fb0aff2eb1c0a4b6192d4d2daa249e92b4592447d`
 
 See `evidence/deployment.json` for the deployment record,
 `evidence/evidence.json` for every core transaction with FINALIZED

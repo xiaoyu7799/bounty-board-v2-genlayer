@@ -4,7 +4,7 @@
   "contract": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3",
   "contract_source_sha256": "f7f6a84f66c69aaa3e77ffde8fbd9f60b667a689baee3c2e746e9ba31a061964",
   "deploy_tx": "0x6e1509c785b0f19f3ba2294fb0aff2eb1c0a4b6192d4d2daa249e92b4592447d",
-  "generated_at": "2026-11-10T04:03:02.267Z",
+  "generated_at": "2026-11-10T06:28:09.975Z",
   "cases": {
     "bb-0001": {
       "bounty_id": "bb-0001",
@@ -639,6 +639,152 @@
         "rejected_post_accepted": false,
         "refund_withdrawn_wei": "9999000000000000000"
       }
+    },
+    "bb-0007": {
+      "bounty_id": "bb-0007",
+      "amount_units": 10000,
+      "expect_gate_pass": false,
+      "expected": "FAKE",
+      "expected_gate": "REPO_MISMATCH",
+      "min_reputation": 0,
+      "note_path": "",
+      "note_text": "Self-merged PR in my own repository.",
+      "pr": 1,
+      "requirements": "Add a status badge component for bounty cards showing the settlement tier.",
+      "slug": "xiaoyu7799/bounty-fake-delivery",
+      "expected_repo_slug": "xiaoyu7799/bounty-board-v2-genlayer",
+      "steps": {
+        "post": "0x2214749bc60a41a5b88eea97dfb07c9512dca36344ea641b82534842dd5d490e",
+        "claim": "0xde19821dbaac1cd2c860c5a071b5d9bc1be6bec50f44a3bbcaa69b2ce982945f",
+        "submit": "0x29d335f6a9c158c36446da99d18efc645d1d0e65a5b4792b347553e79f6f0c45",
+        "evaluate": "0x194306910acbe13eb86f9973c2c0d282030d5529c88fce9cbb70a13286a4753e",
+        "execute": "0xcd7e482a67d6ebe7db8615356c396f1f8ec1ef4d51b5f3fddb173eb7539d0904",
+        "withdraw_issuer": "0xda89145440c145f5d6e4b2e6bfa83e214ac91b965fe9ea883eadee0b786d973d"
+      },
+      "pr_url": "https://github.com/xiaoyu7799/bounty-fake-delivery/pull/1",
+      "merge_sha": "06fba4445fbacc760c794679017e95493cfce90d",
+      "verdict_round1": {
+        "author_match": false,
+        "changed_lines": 0,
+        "commit_hit": false,
+        "completeness_score": 0,
+        "evidence_hash": "190b2322fca91419d08cbe9c4398d4ed1dedd36b53cbc072e60c06a690881171",
+        "file_count": 0,
+        "merge_sha": "",
+        "pr_number": 1,
+        "quality_score": 0,
+        "rationale": "PR is not in the bounty target repository.",
+        "round": 1,
+        "scope_fit_score": 0,
+        "verdict": "FAKE"
+      },
+      "settlement": {
+        "hunter_payout_units": 0,
+        "hunter_payout_wei": 0,
+        "issuer_refund_units": 11000,
+        "issuer_refund_wei": 11000000000000000000,
+        "reputation_delta": -10,
+        "verdict": "FAKE"
+      },
+      "status": "SETTLED_FAKE",
+      "readback": {
+        "amount": 10000,
+        "bounty_id": "bb-0007",
+        "challenge": null,
+        "challenge_count": 0,
+        "claimed_by": "0x2296e41da9da6b01392bd3420646040ee78a0519",
+        "contradictions": [],
+        "delivery": {
+          "note_path": "",
+          "note_text": "Self-merged PR in my own repository.",
+          "pr_number": 1,
+          "pr_url": "https://github.com/xiaoyu7799/bounty-fake-delivery/pull/1"
+        },
+        "events": [
+          {
+            "actor": "0xe8e11ba2b5fa5f410c4d337f6f30436c89bf4348",
+            "event": "POSTED",
+            "sequence": 26
+          },
+          {
+            "actor": "0x2296e41da9da6b01392bd3420646040ee78a0519",
+            "event": "CLAIMED",
+            "sequence": 27
+          },
+          {
+            "actor": "0x2296e41da9da6b01392bd3420646040ee78a0519",
+            "event": "DELIVERED",
+            "sequence": 28
+          },
+          {
+            "actor": "0xe8e11ba2b5fa5f410c4d337f6f30436c89bf4348",
+            "event": "VERDICT_PENDING",
+            "sequence": 29
+          },
+          {
+            "actor": "0xe8e11ba2b5fa5f410c4d337f6f30436c89bf4348",
+            "event": "SETTLED_FAKE",
+            "sequence": 30
+          }
+        ],
+        "expected_repo_slug": "xiaoyu7799/bounty-board-v2-genlayer",
+        "hunter_github_login": "xiaoyu7799",
+        "issuer": "0xe8e11ba2b5fa5f410c4d337f6f30436c89bf4348",
+        "last_audit": {
+          "author_match": false,
+          "changed_lines": 0,
+          "commit_hit": false,
+          "completeness_score": 0,
+          "evidence_hash": "190b2322fca91419d08cbe9c4398d4ed1dedd36b53cbc072e60c06a690881171",
+          "file_count": 0,
+          "merge_sha": "",
+          "pr_number": 1,
+          "quality_score": 0,
+          "rationale": "PR is not in the bounty target repository.",
+          "round": 1,
+          "scope_fit_score": 0,
+          "verdict": "FAKE"
+        },
+        "min_reputation": 0,
+        "pending_verdict": null,
+        "requirements": "Add a status badge component for bounty cards showing the settlement tier.",
+        "rounds": [
+          {
+            "author_match": false,
+            "changed_lines": 0,
+            "commit_hit": false,
+            "completeness_score": 0,
+            "evidence_hash": "190b2322fca91419d08cbe9c4398d4ed1dedd36b53cbc072e60c06a690881171",
+            "file_count": 0,
+            "merge_sha": "",
+            "pr_number": 1,
+            "quality_score": 0,
+            "rationale": "PR is not in the bounty target repository.",
+            "round": 1,
+            "scope_fit_score": 0,
+            "verdict": "FAKE"
+          }
+        ],
+        "settlement": {
+          "hunter_payout_units": 0,
+          "hunter_payout_wei": 0,
+          "issuer_refund_units": 11000,
+          "issuer_refund_wei": 11000000000000000000,
+          "reputation_delta": -10,
+          "verdict": "FAKE"
+        },
+        "stake": 1000,
+        "status": "SETTLED_FAKE"
+      },
+      "hunter_record": {
+        "accepted": 0,
+        "address": "0x2296e41da9da6b01392bd3420646040ee78a0519",
+        "fake": 1,
+        "partial": 0,
+        "rejected": 0,
+        "reputation": 0,
+        "settled": 1
+      }
     }
   },
   "transactions": [
@@ -945,13 +1091,61 @@
       "result_name": "MAJORITY_AGREE",
       "leader_execution": "SUCCESS",
       "to_address": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3"
+    },
+    {
+      "method": "post_bounty",
+      "hash": "0x2214749bc60a41a5b88eea97dfb07c9512dca36344ea641b82534842dd5d490e",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "leader_execution": "SUCCESS",
+      "to_address": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3"
+    },
+    {
+      "method": "claim_bounty",
+      "hash": "0xde19821dbaac1cd2c860c5a071b5d9bc1be6bec50f44a3bbcaa69b2ce982945f",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "leader_execution": "SUCCESS",
+      "to_address": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3"
+    },
+    {
+      "method": "submit_delivery",
+      "hash": "0x29d335f6a9c158c36446da99d18efc645d1d0e65a5b4792b347553e79f6f0c45",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "leader_execution": "SUCCESS",
+      "to_address": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3"
+    },
+    {
+      "method": "evaluate_delivery",
+      "hash": "0x194306910acbe13eb86f9973c2c0d282030d5529c88fce9cbb70a13286a4753e",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "leader_execution": "SUCCESS",
+      "to_address": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3"
+    },
+    {
+      "method": "execute_verdict",
+      "hash": "0xcd7e482a67d6ebe7db8615356c396f1f8ec1ef4d51b5f3fddb173eb7539d0904",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "leader_execution": "SUCCESS",
+      "to_address": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3"
+    },
+    {
+      "method": "withdraw",
+      "hash": "0xda89145440c145f5d6e4b2e6bfa83e214ac91b965fe9ea883eadee0b786d973d",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "leader_execution": "SUCCESS",
+      "to_address": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3"
     }
   ],
   "final_totals": {
     "escrowed_wei": 0,
     "escrowed_wei_recomputed": 0,
-    "total_received_wei": 58999000000000000000,
-    "total_withdrawn_wei": 58999000000000000000,
+    "total_received_wei": 69999000000000000000,
+    "total_withdrawn_wei": 69999000000000000000,
     "withdrawable_wei": 0
   },
   "final_contract_balance_wei": "0x0"

@@ -1,6 +1,6 @@
 {
   "contract": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3",
-  "checked_at": "2026-11-10T04:05:00.233Z",
+  "checked_at": "2026-11-10T06:28:31.737Z",
   "checks": [
     {
       "name": "deployed code SHA == repo source SHA",
@@ -198,6 +198,36 @@
       "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
     },
     {
+      "name": "tx post_bounty 0x2214749bc60a41a5… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx claim_bounty 0xde19821dbaac1cd2… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx submit_delivery 0x29d335f6a9c158c3… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx evaluate_delivery 0x194306910acbe13e… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx execute_verdict 0xcd7e482a67d6ebe7… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0xda89145440c145f5… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
       "name": "readback bb-0001 status SETTLED_ACCEPT",
       "ok": true,
       "detail": "live=SETTLED_ACCEPT"
@@ -308,9 +338,34 @@
       "detail": "live=CANCELLED"
     },
     {
+      "name": "readback bb-0007 status SETTLED_FAKE",
+      "ok": true,
+      "detail": "live=SETTLED_FAKE"
+    },
+    {
+      "name": "readback bb-0007 settlement verdict FAKE",
+      "ok": true,
+      "detail": "live=FAKE"
+    },
+    {
+      "name": "readback bb-0007 hunter payout 0",
+      "ok": true,
+      "detail": "live=0"
+    },
+    {
+      "name": "readback bb-0007 issuer refund 11000",
+      "ok": true,
+      "detail": "live=11000"
+    },
+    {
+      "name": "readback bb-0007 round-1 verdict FAKE",
+      "ok": true,
+      "detail": "live=FAKE"
+    },
+    {
       "name": "conservation received == withdrawn + withdrawable + escrowed",
       "ok": true,
-      "detail": "58999000000000000000 vs 58999000000000000000"
+      "detail": "69999000000000000000 vs 69999000000000000000"
     },
     {
       "name": "escrowed == escrowed recomputed",

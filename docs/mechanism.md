@@ -50,6 +50,15 @@ scoring happens):**
    note file does not exist, the note is treated as absent and the
    evaluation proceeds on the API facts.
 
+**On-chain evidence for the FAKE gates** (contract `0xa926EFed…`,
+`evidence/evidence.json`): `bb-0004`'s FAKE came from gate 6
+(INSUFFICIENT_CODE_CHANGE: 0 code files, 0 changed lines) — its bounty
+targeted the fake repository itself, so gate 2 never fired there.
+`bb-0007` exercises gate 2 (REPO_MISMATCH): the bounty targets
+`xiaoyu7799/bounty-board-v2-genlayer` while the delivered PR is
+`xiaoyu7799/bounty-fake-delivery/pull/1`; consensus judged it FAKE and
+slashed the stake.
+
 **Stage 2 — semantic scoring (only if stage 1 passes):**
 
 The prompt carries the locked requirements, the API facts (PR number,
