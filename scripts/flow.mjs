@@ -166,8 +166,19 @@ async function mirrorPreflight(bountyId, cfg, mergeSha) {
   if (!cfg.note_path) return null;
   const slug = cfg.slug || SLUG;
   for (let attempt = 0; attempt < 10; attempt++) {
-    const primary = await ghText(`https://raw.githubusercontent.com/${slug}/${mergeSha}/${cfg.note_path}`);
-    const backup = await ghText(`https://cdn.jsdelivr.net/gh/${slug}@${mergeSha}/${cfg.note_path}`);
+    // A fetch that throws (hung CDN, transient host outage) is a
+    // disagreement to retry, not a fatal error — run 7 died here when
+    // raw.githubusercontent.com flapped for ~2.5 min mid-case.
+    let primary = null;
+    let backup = null;
+    try {
+      primary = await ghText(`https://raw.githubusercontent.com/${slug}/${mergeSha}/${cfg.note_path}`);
+      backup = await ghText(`https://cdn.jsdelivr.net/gh/${slug}@${mergeSha}/${cfg.note_path}`);
+    } catch (e) {
+      console.log(JSON.stringify({ mirror: bountyId, agree: false, attempt, fetch_error: String(e.message || e).slice(0, 80), wait_s: 60 }));
+      await sleep(60000);
+      continue;
+    }
     if (primary !== null && backup !== null && primary === backup) {
       console.log(JSON.stringify({ mirror: bountyId, agree: true, bytes: primary.length }));
       return true;
