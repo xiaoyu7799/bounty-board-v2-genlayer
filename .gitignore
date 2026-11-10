@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 *.log
 __pycache__/
+# Checkpoint files hold temp account keys: workdir only, never committed.
+checkpoint*.json
