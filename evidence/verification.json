@@ -1,0 +1,327 @@
+{
+  "contract": "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3",
+  "checked_at": "2026-11-10T04:05:00.233Z",
+  "checks": [
+    {
+      "name": "deployed code SHA == repo source SHA",
+      "ok": true,
+      "detail": "f7f6a84f66c69aaa3e77ffde8fbd9f60b667a689baee3c2e746e9ba31a061964"
+    },
+    {
+      "name": "tx post_bounty 0xdb4cb46becf60369… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx claim_bounty 0x6b8abc536a1ea210… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx submit_delivery 0x595ca9c122fa7fe4… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx evaluate_delivery 0x2032313ec0269f0c… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx execute_verdict 0x84ddb1ee40b0a053… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0xaac3ce1990ef3521… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx post_bounty 0x4924e56101394fec… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx claim_bounty 0x324472b04f3afd16… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx submit_delivery 0xc4973723941afe76… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx evaluate_delivery 0xbd5111c107aad0bd… FINALIZED (superseded retry)",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_DISAGREE/SUCCESS"
+    },
+    {
+      "name": "tx evaluate_delivery 0x4261f26416fe04d8… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx execute_verdict 0x77e9fb8a87b6ba6b… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0xa132acce2bb7eb7a… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0x186b8a552e908bcd… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx post_bounty 0xc7f05d0093180996… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx claim_bounty 0x8de96f9380953e36… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx submit_delivery 0x0ff1fde730e0c5dd… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx evaluate_delivery 0xc118f9eeeacf4f37… FINALIZED (superseded retry)",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_DISAGREE/ERROR"
+    },
+    {
+      "name": "tx evaluate_delivery 0x0679d4fd2b0f0b6e… FINALIZED (superseded retry)",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_DISAGREE/ERROR"
+    },
+    {
+      "name": "tx evaluate_delivery 0x9a81984d09f23b0d… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx evaluate_delivery 0x17b0e5a8b18400a4… FINALIZED+expected-failure",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/ERROR"
+    },
+    {
+      "name": "tx challenge_verdict 0x19a6939a880eb4d8… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx execute_verdict 0x672744cc0eafd9bb… FINALIZED+expected-failure",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/ERROR"
+    },
+    {
+      "name": "tx resolve_challenge 0xebe45ccc876fd44a… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx execute_verdict 0x20df6a210f9221d4… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0x1bbc448659c33da0… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx post_bounty 0xe635a6dc18dcb248… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx claim_bounty 0xbd74da7cd7620f18… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx submit_delivery 0x7df141d746be1e04… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx evaluate_delivery 0xaa6da93c032ca7ed… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx execute_verdict 0x99c14e6f71a660d1… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0x2790fb7e7d7891d9… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx post_bounty 0x11b53060e7c9712c… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx cancel_bounty 0x0f56233746990ffb… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0x0eba8e315ffd0716… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx post_bounty 0xc3a65205ad70e1ac… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx withdraw 0xcf19fac6f0f6d53f… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "tx record_contradiction_claim 0xc8f7020cf0d24b17… FINALIZED+MAJORITY_AGREE+SUCCESS",
+      "ok": true,
+      "detail": "FINALIZED/MAJORITY_AGREE/SUCCESS"
+    },
+    {
+      "name": "readback bb-0001 status SETTLED_ACCEPT",
+      "ok": true,
+      "detail": "live=SETTLED_ACCEPT"
+    },
+    {
+      "name": "readback bb-0001 settlement verdict ACCEPT",
+      "ok": true,
+      "detail": "live=ACCEPT"
+    },
+    {
+      "name": "readback bb-0001 hunter payout 11000",
+      "ok": true,
+      "detail": "live=11000"
+    },
+    {
+      "name": "readback bb-0001 issuer refund 0",
+      "ok": true,
+      "detail": "live=0"
+    },
+    {
+      "name": "readback bb-0001 round-1 verdict ACCEPT",
+      "ok": true,
+      "detail": "live=ACCEPT"
+    },
+    {
+      "name": "readback bb-0002 status SETTLED_PARTIAL",
+      "ok": true,
+      "detail": "live=SETTLED_PARTIAL"
+    },
+    {
+      "name": "readback bb-0002 settlement verdict PARTIAL",
+      "ok": true,
+      "detail": "live=PARTIAL"
+    },
+    {
+      "name": "readback bb-0002 hunter payout 7000",
+      "ok": true,
+      "detail": "live=7000"
+    },
+    {
+      "name": "readback bb-0002 issuer refund 4000",
+      "ok": true,
+      "detail": "live=4000"
+    },
+    {
+      "name": "readback bb-0002 round-1 verdict PARTIAL",
+      "ok": true,
+      "detail": "live=PARTIAL"
+    },
+    {
+      "name": "readback bb-0003 status SETTLED_ACCEPT",
+      "ok": true,
+      "detail": "live=SETTLED_ACCEPT"
+    },
+    {
+      "name": "readback bb-0003 settlement verdict ACCEPT",
+      "ok": true,
+      "detail": "live=ACCEPT"
+    },
+    {
+      "name": "readback bb-0003 hunter payout 11000",
+      "ok": true,
+      "detail": "live=11000"
+    },
+    {
+      "name": "readback bb-0003 issuer refund 0",
+      "ok": true,
+      "detail": "live=0"
+    },
+    {
+      "name": "readback bb-0003 round-1 verdict REJECT",
+      "ok": true,
+      "detail": "live=REJECT"
+    },
+    {
+      "name": "readback bb-0003 round-2 verdict ACCEPT",
+      "ok": true,
+      "detail": "live=ACCEPT"
+    },
+    {
+      "name": "readback bb-0004 status SETTLED_FAKE",
+      "ok": true,
+      "detail": "live=SETTLED_FAKE"
+    },
+    {
+      "name": "readback bb-0004 settlement verdict FAKE",
+      "ok": true,
+      "detail": "live=FAKE"
+    },
+    {
+      "name": "readback bb-0004 hunter payout 0",
+      "ok": true,
+      "detail": "live=0"
+    },
+    {
+      "name": "readback bb-0004 issuer refund 11000",
+      "ok": true,
+      "detail": "live=11000"
+    },
+    {
+      "name": "readback bb-0004 round-1 verdict FAKE",
+      "ok": true,
+      "detail": "live=FAKE"
+    },
+    {
+      "name": "readback bb-0005 status CANCELLED",
+      "ok": true,
+      "detail": "live=CANCELLED"
+    },
+    {
+      "name": "conservation received == withdrawn + withdrawable + escrowed",
+      "ok": true,
+      "detail": "58999000000000000000 vs 58999000000000000000"
+    },
+    {
+      "name": "escrowed == escrowed recomputed",
+      "ok": true,
+      "detail": "0 vs 0"
+    },
+    {
+      "name": "contract balance == received - withdrawn",
+      "ok": true,
+      "detail": "0 vs 0"
+    }
+  ],
+  "failed": false
+}

@@ -25,14 +25,41 @@ const deployedSha = createHash('sha256').update(decoded).digest('hex');
 const sourceSha = createHash('sha256').update(fs.readFileSync('contracts/bounty_board.py')).digest('hex');
 check('deployed code SHA == repo source SHA', deployedSha === sourceSha, deployedSha);
 
-// 2. Every recorded transaction is FINALIZED with majority agreement.
+// 2. Every recorded transaction is FINALIZED. What "good" means depends on
+// the journal (evidence/flow.json):
+//   - a step named *_failed / *_blocked is a deliberate negative test:
+//     it must have FAILED (not MAJORITY_AGREE+SUCCESS);
+//   - a tx no case step references is a superseded retry attempt: it must
+//     merely be FINALIZED (its MAJORITY_DISAGREE is why it was retried);
+//   - every other tx is a final step and must be FINALIZED+MAJORITY_AGREE+SUCCESS.
+const journal = JSON.parse(fs.readFileSync('evidence/flow.json', 'utf8'));
+const expectedFailed = new Set();
+const finalSteps = new Set();
+for (const c of Object.values(journal.cases)) {
+  for (const [name, hash] of Object.entries(c.steps || {})) {
+    if (/_failed|_blocked/.test(name)) expectedFailed.add(hash);
+    else finalSteps.add(hash);
+  }
+}
 for (const tx of evidence.transactions) {
   const receipt = await rpc('eth_getTransactionByHash', [tx.hash]);
   const summary = receiptSummary(receipt);
-  check(`tx ${tx.method} ${tx.hash.slice(0, 18)}… FINALIZED+MAJORITY_AGREE+SUCCESS`,
-    receipt?.status === 'FINALIZED' && receipt?.result_name === 'MAJORITY_AGREE' &&
-    summary.leader_execution === 'SUCCESS',
-    `${receipt?.status}/${receipt?.result_name}/${summary.leader_execution}`);
+  const finalized = receipt?.status === 'FINALIZED';
+  const success = finalized && receipt?.result_name === 'MAJORITY_AGREE' &&
+    summary.leader_execution === 'SUCCESS';
+  if (expectedFailed.has(tx.hash)) {
+    check(`tx ${tx.method} ${tx.hash.slice(0, 18)}… FINALIZED+expected-failure`,
+      finalized && !success,
+      `${receipt?.status}/${receipt?.result_name}/${summary.leader_execution}`);
+  } else if (!finalSteps.has(tx.hash)) {
+    check(`tx ${tx.method} ${tx.hash.slice(0, 18)}… FINALIZED (superseded retry)`,
+      finalized,
+      `${receipt?.status}/${receipt?.result_name}/${summary.leader_execution}`);
+  } else {
+    check(`tx ${tx.method} ${tx.hash.slice(0, 18)}… FINALIZED+MAJORITY_AGREE+SUCCESS`,
+      success,
+      `${receipt?.status}/${receipt?.result_name}/${summary.leader_execution}`);
+  }
 }
 
 // 3. Every case read-back matches the live chain state.
