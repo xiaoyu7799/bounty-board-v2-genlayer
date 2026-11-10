@@ -286,8 +286,12 @@ async function executeAndWithdraw(c, label) {
 // has spent the pool, which is why it failed 10/10 in run 4 while
 // bb-0001 got through.
 async function pauseBetween(doneLabel, nextLabel) {
-  console.log(JSON.stringify({ pause_between_cases: `${doneLabel} -> ${nextLabel}`, seconds: 600 }));
-  await sleep(600000);
+  // 300s, not 600s: three runs (3, 6, 9) were killed by runtime restarts
+  // during these pauses, and the pause is only a secondary API-window
+  // recovery — the evaluate retry backoff (120..600s) is the real safety
+  // net. Shorter pauses cut ~15 min of wall time per run.
+  console.log(JSON.stringify({ pause_between_cases: `${doneLabel} -> ${nextLabel}`, seconds: 300 }));
+  await sleep(300000);
 }
 
 // bb-0001 ACCEPT
