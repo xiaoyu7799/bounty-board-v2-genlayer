@@ -114,8 +114,11 @@ async function withdrawIfOwed(account, label) {
 async function fetchRetry(url) {
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
+      // 'connection: close' — run 8 died because undici's keep-alive pool
+      // held a socket the server had closed during the 10-minute pause;
+      // every reuse hung to the 30s timeout. Fresh connection per request.
       return await fetch(url, {
-        headers: { 'user-agent': 'bounty-board-v2-evidence' },
+        headers: { 'user-agent': 'bounty-board-v2-evidence', connection: 'close' },
         signal: AbortSignal.timeout(30000),
       });
     } catch (e) {
@@ -166,18 +169,20 @@ async function mirrorPreflight(bountyId, cfg, mergeSha) {
   if (!cfg.note_path) return null;
   const slug = cfg.slug || SLUG;
   for (let attempt = 0; attempt < 10; attempt++) {
-    // A fetch that throws (hung CDN, transient host outage) is a
-    // disagreement to retry, not a fatal error — run 7 died here when
-    // raw.githubusercontent.com flapped for ~2.5 min mid-case.
+    // Each mirror is fetched independently: a throw on one host must not
+    // skip the other (run 8: raw flapped while jsdelivr was fine, but the
+    // shared try/catch never tried the backup). A throw counts as missing.
     let primary = null;
     let backup = null;
     try {
       primary = await ghText(`https://raw.githubusercontent.com/${slug}/${mergeSha}/${cfg.note_path}`);
+    } catch (e) {
+      console.log(JSON.stringify({ mirror: bountyId, agree: false, attempt, host: 'raw', fetch_error: String(e.message || e).slice(0, 80) }));
+    }
+    try {
       backup = await ghText(`https://cdn.jsdelivr.net/gh/${slug}@${mergeSha}/${cfg.note_path}`);
     } catch (e) {
-      console.log(JSON.stringify({ mirror: bountyId, agree: false, attempt, fetch_error: String(e.message || e).slice(0, 80), wait_s: 60 }));
-      await sleep(60000);
-      continue;
+      console.log(JSON.stringify({ mirror: bountyId, agree: false, attempt, host: 'jsdelivr', fetch_error: String(e.message || e).slice(0, 80) }));
     }
     if (primary !== null && backup !== null && primary === backup) {
       console.log(JSON.stringify({ mirror: bountyId, agree: true, bytes: primary.length }));
