@@ -107,9 +107,26 @@ async function withdrawIfOwed(account, label) {
 }
 
 // -- GitHub pre-flight ---------------------------------------------------------
+// Raw fetch can REJECT (network error, undici headers timeout) — the retry
+// loops below only handled non-ok statuses, so one hung CDN/GitHub fetch
+// killed run 5 as an uncaught exception mid-case. Every fetch now retries
+// on throw too, with a 30s per-attempt timeout.
+async function fetchRetry(url) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return await fetch(url, {
+        headers: { 'user-agent': 'bounty-board-v2-evidence' },
+        signal: AbortSignal.timeout(30000),
+      });
+    } catch (e) {
+      await sleep(5000 * (attempt + 1));
+    }
+  }
+  throw Error(`FETCH_FAILED:${url}`);
+}
 async function ghJson(url) {
   for (let attempt = 0; attempt < 5; attempt++) {
-    const res = await fetch(url, { headers: { 'user-agent': 'bounty-board-v2-evidence' } });
+    const res = await fetchRetry(url);
     if (res.status === 404) return null;
     if (!res.ok) { await sleep(5000 * (attempt + 1)); continue; }
     return res.json();
@@ -118,7 +135,7 @@ async function ghJson(url) {
 }
 async function ghText(url) {
   for (let attempt = 0; attempt < 5; attempt++) {
-    const res = await fetch(url, { headers: { 'user-agent': 'bounty-board-v2-evidence' } });
+    const res = await fetchRetry(url);
     if (res.status === 404) return null;
     if (!res.ok) { await sleep(5000 * (attempt + 1)); continue; }
     return res.text();
