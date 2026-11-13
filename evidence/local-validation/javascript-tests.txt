@@ -1,0 +1,46 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> bounty-board-v2-genlayer@1.0.0 test-frontend
+> node --test tests/*.test.mjs && node scripts/i18n_check.mjs
+
+✔ checkChainId accepts 61999 and rejects anything else (1.079895ms)
+✔ checkGasPrice reports zero gas on Studionet (0.309707ms)
+✔ formatPingReport collects failed checks (1.745319ms)
+✔ pingChain reports all three checks from a scripted RPC (0.921027ms)
+✔ pingChain records a failed check instead of throwing (1.5182ms)
+✔ ACCEPT dossier exports readback fields verbatim (1.635563ms)
+✔ PARTIAL dossier is its own branch: 60% payout, no success marker (0.239586ms)
+✔ FAKE dossier carries the slash, no success marker (0.20188ms)
+✔ no readback, or no settled audit, refuses the export (0.200767ms)
+✔ hunter dossier exports the readback hunter record plus only their bounties (0.425801ms)
+✔ hunter dossier refuses without a readback hunter record or totals (0.174579ms)
+✔ hunter dossier with no bounties of their own still exports stats and totals (0.885419ms)
+✔ formatReputationJson keeps every readback field (1.956337ms)
+✔ rankHunters orders by reputation, then settled count (0.217192ms)
+✔ summarizeHunters totals reputation, settled counts, and tier mix (0.741548ms)
+✔ summarizeHunters flags hunters with fake verdicts (0.318643ms)
+✔ formatReputationJson --top limits rows but the summary covers all (0.248591ms)
+✔ formatReputationJson --compact writes a single line (0.215426ms)
+✔ parseExportArgs reads --top and --compact (0.59935ms)
+✔ columnKeyForStatus maps live statuses to four columns (1.989227ms)
+✔ columnTitleKey covers all four columns (0.35642ms)
+✔ verdictTag has one branch per tier, PARTIAL never looks successful (0.55568ms)
+✔ bountyCard shows readback values and escapes requirements (2.008738ms)
+✔ renderKanban groups four columns and counts cards (0.979778ms)
+✔ bountyCard shows each audit rationale from the readback, escaped (0.517601ms)
+✔ bountyCard omits the rationale row when the audit has none (0.456825ms)
+✔ injected displayed account signs even if a different temporary signer exists (1.166579ms)
+✔ disconnect and account switches reject writes (0.70609ms)
+✔ injected network and provider account changes reject before sending (0.360678ms)
+✔ temporary funds and nonce use displayed signer; insufficient balance fails (0.275316ms)
+✔ faucet funds only displayed temporary account and propagates failure (0.850472ms)
+✔ GEN input converts to exact contract units with range and precision checks (0.485982ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 472.00651
+i18n OK: 102 keys in en and zh, zero missing.

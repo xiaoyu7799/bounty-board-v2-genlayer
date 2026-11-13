@@ -2,7 +2,7 @@
 // Usage: node scripts/flow.mjs [evidence/prs.json]
 //   prs.json maps bounty ids to { pr, note_path, note_text, expected }.
 //
-// Checkpoint / resume (Sandra, 2026-11-10): after every FINALIZED tx the
+// Checkpoint / resume: after every FINALIZED tx the
 // flow writes <workdir>/checkpoint.json (0600, outside repo/, never
 // committed) with the contract address, every tx hash, per-case progress
 // and the temporary account private keys, so a killed run resumes from
@@ -34,6 +34,9 @@ import {
 } from './checkpoint.mjs';
 
 const deployment = JSON.parse(fs.readFileSync('evidence/deployment.json', 'utf8'));
+if (deployment.contractSha256 !== (await import('node:crypto')).createHash('sha256').update(fs.readFileSync('contracts/bounty_board.py')).digest('hex')) {
+  throw Error('SOURCE_DIFFERS_FROM_DEPLOYMENT: historical flow cannot validate the revised contract');
+}
 const CONTRACT = deployment.contractAddress;
 assert(CONTRACT, 'No contract address in evidence/deployment.json');
 const prsFile = process.argv[2] || 'evidence/prs.json';

@@ -1,4 +1,4 @@
-// Fix for independent-verification discrepancy 1 (A1 Bounty Board v2).
+// Fix for independent-verification repository mismatch (historical Bounty Board v2).
 //
 // The REPO_MISMATCH gate was never exercised on-chain: bb-0004's bounty
 // targeted the fake repository itself, so its FAKE came from
@@ -28,6 +28,9 @@ import {
 } from './checkpoint.mjs';
 
 const deployment = JSON.parse(fs.readFileSync('evidence/deployment.json', 'utf8'));
+if (deployment.contractSha256 !== (await import('node:crypto')).createHash('sha256').update(fs.readFileSync('contracts/bounty_board.py')).digest('hex')) {
+  throw Error('SOURCE_DIFFERS_FROM_DEPLOYMENT: historical flow cannot validate the revised contract');
+}
 const CONTRACT = deployment.contractAddress;
 assert(CONTRACT, 'No contract address in evidence/deployment.json');
 const SLUG = 'xiaoyu7799/bounty-board-v2-genlayer';

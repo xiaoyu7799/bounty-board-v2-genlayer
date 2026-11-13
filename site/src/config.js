@@ -1,6 +1,7 @@
 // Bounty Board v2 — frontend configuration.
 // All displayed values come from FINALIZED get_* readbacks of this contract.
 export const APP_CONFIG = {
+  REMEDIATED_DEPLOYMENT: false, // Legacy address is read-only until new deployment is verified.
   RPC_URL: 'https://studio.genlayer.com/api',
   CHAIN_ID: 61999,
   NETWORK_NAME: 'Stable Studionet',

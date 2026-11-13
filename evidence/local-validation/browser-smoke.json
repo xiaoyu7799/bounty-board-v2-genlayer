@@ -1,0 +1,9 @@
+{
+  "scope": "Attempted local mocked-RPC browser smoke, no real transactions",
+  "passed": false,
+  "state": "BLOCKED_BEFORE_PAGE_LAUNCH",
+  "browser": "/usr/bin/chromium via installed playwright",
+  "error": "process_singleton_posix.cc:297 socket() failed: Operation not permitted (1)",
+  "page_interactions_executed": false,
+  "real_wallet_or_faucet_calls_executed": false
+}

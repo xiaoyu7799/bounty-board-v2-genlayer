@@ -1,5 +1,6 @@
+import { writeAsDisplayed, fundTemporary, genToUnits } from './wallet-write.js';
 // Bounty Board v2 — frontend.
-// Display rule (Gate 11): every displayed or exported value comes from a
+// Display rule: every displayed or exported value comes from a
 // FINALIZED get_* readback snapshot. Before a readback, fields show
 // "unconfirmed". No seed data, no local simulation feeds any display,
 // export, score, or payout field.
@@ -42,18 +43,21 @@ async function rpcCall(method, params = []) {
         body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
         signal: AbortSignal.timeout(60000),
       });
-    } catch {
+    } catch (error) {
+      if (method === 'eth_sendRawTransaction' || method === 'sim_fundAccount') throw error;
       await sleep(Math.min(5000 * (attempt + 1), 30000));
       continue;
     }
     if (!res.ok) {
+      if (method === 'eth_sendRawTransaction' || method === 'sim_fundAccount') throw Error('BROADCAST_UNCERTAIN');
       await sleep(Math.min(5000 * (attempt + 1), 30000));
       continue;
     }
     let body;
     try {
       body = await res.json();
-    } catch {
+    } catch (error) {
+      if (method === 'eth_sendRawTransaction' || method === 'sim_fundAccount') throw Error('BROADCAST_UNCERTAIN');
       await sleep(Math.min(5000 * (attempt + 1), 30000));
       continue;
     }
@@ -114,10 +118,7 @@ async function refreshSnapshot() {
 }
 
 // ------------------------------------------------------------------
-// Chain writes. Signing account is the in-browser ephemeral test
-// account (generated here, keys never leave this browser). Injected
-// wallets are used for connecting and reading; writes are never
-// presented as the injected wallet's signature.
+// Chain writes use the selected displayed account.
 // ------------------------------------------------------------------
 function envelope(sender, to, data) {
   const entry = chain.consensusMainContract.abi.find(
@@ -138,21 +139,15 @@ async function waitFinalized(hash, timeoutMs = 15 * 60 * 1000) {
 }
 
 async function sendWrite(method, args, valueWei = 0n) {
-  if (!tempAccount) throw new Error('ENABLE_TEMPORARY_TEST_ACCOUNT');
+  if (!APP_CONFIG.REMEDIATED_DEPLOYMENT) throw Error('NEW_CONTRACT_DEPLOYMENT_REQUIRED');
+  const selected = wallet;
+  if (!selected) throw Error('CONNECT_WALLET');
   const data = transactions.serialize([
     calldata.encode(calldata.makeCalldataObject(method, args, {})), false]);
-  const nonce = await rpcCall('eth_getTransactionCount', [tempAccount.address, 'latest']);
-  const serialized = await tempAccount.signTransaction({
-    chainId: APP_CONFIG.CHAIN_ID,
-    type: 'legacy',
-    to: chain.consensusMainContract.address,
-    data: envelope(tempAccount.address, APP_CONFIG.CONTRACT_ADDRESS, data),
-    nonce: Number(BigInt(nonce)),
-    gas: 20000000n,
-    gasPrice: 0n,
-    value: BigInt(valueWei),
-  });
-  return rpcCall('eth_sendRawTransaction', [serialized]);
+  return writeAsDisplayed({ wallet: selected, tempAccount, rpc: rpcCall,
+    chainId: APP_CONFIG.CHAIN_ID, to: chain.consensusMainContract.address,
+    data: envelope(selected.address, APP_CONFIG.CONTRACT_ADDRESS, data), value: valueWei,
+    currentWallet: () => wallet });
 }
 
 async function runWrite(label, method, args, valueWei = 0n) {
@@ -200,10 +195,12 @@ async function connectInjected() {
       return;
     }
     wallet = {
-      kind: 'injected',
+      kind: 'injected', provider,
       address: (accounts[0] || '').toLowerCase(),
       label: `${window.okxwallet ? 'OKX Wallet' : 'Injected EVM Wallet'} ${(accounts[0] || '').slice(0, 6)}…${(accounts[0] || '').slice(-4)}`,
     };
+    provider.on?.('accountsChanged', disconnectWallet);
+    provider.on?.('chainChanged', disconnectWallet);
     renderWallet();
     renderAll();
   } catch (error) {
@@ -277,11 +274,11 @@ function actionButtons(bounty) {
   }
   if (bounty.status === 'CLAIMED' && me === (bounty.issuer || '').toLowerCase()) add('release', t(lang, 'release'));
   if (bounty.status === 'DELIVERED' && me === (bounty.claimed_by || '').toLowerCase()) add('withdraw-delivery', t(lang, 'withdrawDelivery'));
-  if (bounty.status === 'DELIVERED' && me === (bounty.issuer || '').toLowerCase()) add('evaluate', t(lang, 'evaluate'));
-  if (bounty.status === 'VERDICT_PENDING' && me === (bounty.claimed_by || '').toLowerCase() && !bounty.challenge) add('challenge', t(lang, 'challenge'));
-  if (bounty.status === 'VERDICT_PENDING' && me === (bounty.issuer || '').toLowerCase() && bounty.challenge) add('resolve', t(lang, 'resolveChallenge'));
+  if (bounty.status === 'DELIVERED') add('evaluate', t(lang, 'evaluate'));
+  if (bounty.status === 'VERDICT_PENDING' && me === (bounty.claimed_by || '').toLowerCase() && !bounty.challenge && Date.now() / 1000 < bounty.challenge_deadline && bounty.challenge_count < 2) add('challenge', t(lang, 'challenge'));
+  if (bounty.status === 'VERDICT_PENDING' && bounty.challenge) add('resolve', t(lang, 'resolveChallenge'));
   if (bounty.status === 'VERDICT_PENDING' && !bounty.challenge &&
-      (me === (bounty.issuer || '').toLowerCase() || me === (bounty.claimed_by || '').toLowerCase())) add('execute', t(lang, 'execute'));
+      Date.now() / 1000 >= bounty.challenge_deadline) add('execute', t(lang, 'execute'));
   return btns.join('');
 }
 
@@ -421,7 +418,13 @@ function renderWallet() {
       <button id="disconnect-btn">${esc(t(lang, 'disconnect'))}</button>`;
     $('#disconnect-btn').onclick = disconnectWallet;
     if (wallet.kind === 'temp') {
-      el.insertAdjacentHTML('beforeend', `<p class="hint">${esc(t(lang, 'tempAccountNote'))}</p>`);
+      el.insertAdjacentHTML('beforeend', `<p class="hint">${esc(t(lang, 'tempAccountNote'))}</p><button id="fund-temp-btn">Fund displayed account (20 testnet GEN)</button>`);
+      $('#fund-temp-btn').onclick = async () => {
+        try {
+          const result = await fundTemporary({ wallet, rpc: rpcCall, currentWallet: () => wallet });
+          setNotice(`${result.address}: ${fmtGenFromWei(result.balance)} (faucet may settle later; check balance before spending)`, 'info');
+        } catch (error) { setNotice(error.message, 'error'); }
+      };
     }
   }
 }
@@ -463,7 +466,9 @@ function bindForms() {
   $('#refresh-btn').onclick = refreshSnapshot;
   $('#post-form').addEventListener('submit', async (event) => {
     event.preventDefault();
-    const amountUnits = Number($('#post-amount').value);
+    let amountUnits;
+    try { amountUnits = genToUnits($('#post-amount').value); }
+    catch (error) { setNotice(error.message, 'error'); return; }
     const valueWei = BigInt(amountUnits) * APP_CONFIG.WEI_PER_UNIT;
     await runWrite(t(lang, 'postBounty'), 'post_bounty', [
       $('#post-id').value.trim(),
@@ -495,7 +500,8 @@ function bindForms() {
     if (!bounty) return;
     const action = btn.dataset.action;
     if (action === 'claim') {
-      const login = window.prompt(t(lang, 'hunterLogin'));
+      const token = `bb:61999:${APP_CONFIG.CONTRACT_ADDRESS.toLowerCase()}:${bountyId}:${wallet.address}`;
+      const login = window.prompt(t(lang, 'hunterLogin') + '\nSet this exact token as a whitespace-separated entry in your GitHub bio before claiming:\n' + token);
       if (!login) return;
       const stake = Math.min(10000, Math.max(1000, Math.floor(bounty.amount / 10)));
       await runWrite(t(lang, 'claim'), 'claim_bounty', [bountyId, login.trim().toLowerCase()],
