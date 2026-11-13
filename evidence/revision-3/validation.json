@@ -1,0 +1,37 @@
+{
+  "network": "Stable Studionet",
+  "chain_id": 61999,
+  "contract": "0xb783CD72882e4403aC236237Ab231cfED7172f49",
+  "source_sha256": "c12961d63d460d688df8c58470befd19b46c7254cf3bd8e64bffc1a87256181b",
+  "deployment": {
+    "status": "FINALIZED",
+    "execution": "SUCCESS",
+    "code_hash_readback_matches": true
+  },
+  "posted_bounties": [
+    "bb-r3-code",
+    "bb-r3-fake"
+  ],
+  "complete_flow_verified": false,
+  "pending": [
+    "successful GitHub identity claim",
+    "immutable code semantic consensus",
+    "early settlement rejection",
+    "permissionless challenge resolution",
+    "real 24-hour deadline boundary",
+    "tier settlement and withdrawal",
+    "live browser signing"
+  ],
+  "uncertain_transaction": {
+    "label": "reject-unmerged-identity",
+    "hash": "0x21baad733fb08e2d9ecdd9a2bfff7f6364145e90789a98d502e5a4b194931759",
+    "observation": "Submission timed out; receipt read also timed out. Do not resubmit without checking hash and nonce."
+  },
+  "local_tests": {
+    "python": 36,
+    "javascript": 40,
+    "build": "passed",
+    "browser": "blocked before launch"
+  },
+  "historical_evidence_preserved": true
+}

@@ -4,6 +4,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
 > python3 -m unittest discover -s tests -v
 
 test_accept_full_flow_and_conservation (test_bounty_board.BountyBoardTest.test_accept_full_flow_and_conservation) ... ok
+test_bounty_id_cannot_escape_identity_proof_path (test_bounty_board.BountyBoardTest.test_bounty_id_cannot_escape_identity_proof_path) ... ok
 test_challenge_flip_reject_to_accept (test_bounty_board.BountyBoardTest.test_challenge_flip_reject_to_accept) ... ok
 test_challenge_limit (test_bounty_board.BountyBoardTest.test_challenge_limit) ... ok
 test_contradiction_witness_kept_not_overwritten (test_bounty_board.BountyBoardTest.test_contradiction_witness_kept_not_overwritten) ... ok
@@ -27,6 +28,9 @@ test_oversized_code_never_scores_or_writes_verdict (test_bounty_board.BountyBoar
 test_partial_flow (test_bounty_board.BountyBoardTest.test_partial_flow) ... ok
 test_prompt_injection_in_note_is_data_not_instruction (test_bounty_board.BountyBoardTest.test_prompt_injection_in_note_is_data_not_instruction) ... ok
 test_reject_flow_reputation_floor (test_bounty_board.BountyBoardTest.test_reject_flow_reputation_floor) ... ok
+test_repository_identity_proof_accepts_owner_default_branch (test_bounty_board.BountyBoardTest.test_repository_identity_proof_accepts_owner_default_branch) ... ok
+test_repository_identity_rejects_unmerged_fork_commit (test_bounty_board.BountyBoardTest.test_repository_identity_rejects_unmerged_fork_commit) ... ok
+test_repository_identity_rejects_wrong_owner_and_wallet (test_bounty_board.BountyBoardTest.test_repository_identity_rejects_wrong_owner_and_wallet) ... ok
 test_sender_binding (test_bounty_board.BountyBoardTest.test_sender_binding) ... ok
 test_sha256_vectors (test_bounty_board.BountyBoardTest.test_sha256_vectors) ... ok
 test_stake_clamp (test_bounty_board.BountyBoardTest.test_stake_clamp) ... ok
@@ -37,6 +41,6 @@ test_validator_tier_mismatch_rejects (test_bounty_board.BountyBoardTest.test_val
 test_verdict_derivation (test_bounty_board.BountyBoardTest.test_verdict_derivation) ... ok
 
 ----------------------------------------------------------------------
-Ran 32 tests in 0.084s
+Ran 36 tests in 0.098s
 
 OK

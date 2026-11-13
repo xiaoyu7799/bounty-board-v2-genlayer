@@ -5,10 +5,13 @@ Website: https://xiaoyu7799.github.io/bounty-board-v2-genlayer/
 A GitHub bounty market with real testnet GEN escrow, independent semantic
 adjudication, challenges and pull payments on Stable Studionet (61999).
 
-The revised source requires a **new deployment**. The website configuration
-still points to historical contract `0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3`;
-this branch blocks browser writes until a verified revised deployment is configured.
-Existing receipts prove the historical version only.
+The revised source is deployed at `0xb783CD72882e4403aC236237Ab231cfED7172f49`
+with a FINALIZED/SUCCESS receipt and independently matched source hash.
+See `evidence/revision-3/`. Full identity, challenge and settlement acceptance
+is still incomplete. The published website currently serves the historical
+version; the revised configuration stays read-only until live acceptance.
+Historical receipts in the root `evidence/` directory belong to
+`0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3` only.
 
 ## Work and payment
 
@@ -17,7 +20,13 @@ Existing receipts prove the historical version only.
    following whitespace-separated token in the GitHub profile bio:
    `bb:61999:<lowercase-contract-address>:<bounty-id>:<lowercase-wallet-address>`.
    Claim with the GitHub login and exact stake (10%, clamped to 1–10 GEN).
-   Validators fetch the profile independently. The verified numeric GitHub ID
+   Alternatively, commit the exact token as the entire file
+   `identity/<lowercase-wallet-address>/<bounty-id>.txt` in a repository owned
+   by that GitHub login. Pass its repository slug and immutable commit SHA to
+   `claim_bounty`; the commit must already be an ancestor of the repository's
+   default branch. A fork-only or unmerged branch commit cannot authorize a claim.
+   Validators verify the profile or repository proof independently.
+   The verified numeric GitHub ID
    and login are bound to the claimant wallet; a matching name alone is insufficient.
 3. Submit a merged PR in the target repository. Its author must match that
    identity, a commit must mention the bounty ID, and at least two code files

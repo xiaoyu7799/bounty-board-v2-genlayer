@@ -42,6 +42,8 @@ class Runtime:
 
     def __init__(self):
         self.identity_wallet = HUNTER
+        self.identity_on_branch = True
+        self.identity_owner = 'xiaoyu7799'
         self.code_body = 'export const implementation = true;\n'
         self.prs = {}          # (slug, number) -> pr object dict
         self.commits = {}      # (slug, number) -> list of commit dicts
@@ -83,6 +85,12 @@ class Runtime:
                 'bio': 'bb:61999:' + gl.message.contract_address + ':bb-0001:' + self.identity_wallet +
                 ' bb:61999:' + gl.message.contract_address + ':bb-0002:' + self.identity_wallet +
                 ' bb:61999:' + gl.message.contract_address + ':bb-0003:' + self.identity_wallet}).encode())
+        if '/compare/' in url:
+            return Response(200, {}, json.dumps({'status': 'ahead' if self.identity_on_branch else 'diverged',
+                'merge_base_commit': {'sha': 'c' * 40}}).encode())
+        if url == 'https://api.github.com/repos/' + SLUG:
+            return Response(200, {}, json.dumps({'owner': {'login': self.identity_owner, 'id': 123},
+                'default_branch': 'main'}).encode())
         if url.startswith('https://api.github.com/repos/'):
             rest = url[len('https://api.github.com/repos/'):]
             if '/pulls/' in rest and rest.endswith('/commits?per_page=100'):
@@ -114,6 +122,8 @@ class Runtime:
             parts = url[len('https://raw.githubusercontent.com/'):].split('/')
             slug = parts[0] + '/' + parts[1]
             sha, path = parts[2], '/'.join(parts[3:])
+            if path.startswith('identity/'):
+                return Response(200, {}, ('bb:61999:' + gl.message.contract_address + ':bb-0001:' + self.identity_wallet).encode())
             if path.endswith('.js'):
                 return Response(200, {}, self.code_body.encode())
             entry = self.notes.get((slug, sha, path))
@@ -668,6 +678,37 @@ class BountyBoardTest(unittest.TestCase):
         self.assertEqual(self.bounty()['challenge_deadline'], deadline + 1 + 86400)
         self.execute(sender=STRANGER)
         self.assertEqual(self.bounty()['status'], 'SETTLED_ACCEPT')
+
+    def test_repository_identity_proof_accepts_owner_default_branch(self):
+        self.post()
+        out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
+            'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
+        self.assertTrue(out['accepted'])
+        self.assertEqual(self.bounty()['hunter_github_id'], 123)
+        self.assertEqual(self.bounty()['identity_sha'], 'c' * 40)
+
+    def test_repository_identity_rejects_unmerged_fork_commit(self):
+        self.post(); runtime.identity_on_branch = False
+        out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
+            'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
+        self.assertFalse(out['accepted'])
+        self.assertIn('NOT_ON_DEFAULT_BRANCH', out['reason'])
+        self.assertEqual(self.withdrawable(HUNTER), 1000)
+
+    def test_repository_identity_rejects_wrong_owner_and_wallet(self):
+        for kind in ['owner', 'wallet']:
+            self.setUp(); self.post()
+            if kind == 'owner': runtime.identity_owner = 'attacker'
+            else: runtime.identity_wallet = STRANGER
+            out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
+                'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
+            self.assertFalse(out['accepted'])
+            self.assertEqual(self.bounty()['status'], 'OPEN')
+
+    def test_bounty_id_cannot_escape_identity_proof_path(self):
+        out = json.loads(self.post(bounty_id='../unsafe'))
+        self.assertFalse(out['accepted'])
+        self.assertEqual(self.state()['bounties'], {})
 
 
 if __name__ == '__main__':

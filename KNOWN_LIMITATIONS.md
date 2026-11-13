@@ -1,9 +1,12 @@
 # Known limitations
 
-- Revised code is not deployed. Historical receipts belong to the old contract
-  and do not demonstrate the revised identity, code grounding or time rules.
+- Revised code is deployed with matching source hash. Full identity, semantic
+  consensus, challenge and settlement acceptance remains incomplete. Historical
+  receipts belong to the old contract and do not prove the revised mechanisms.
 - GitHub profile control is proved through public bio content, not OAuth or a
-  GitHub-issued cryptographic attestation. GitHub API authenticity and availability
+  GitHub-issued cryptographic attestation. The alternative repository-file proof
+  trusts control of an account-owned repository and its default branch, including
+  any collaborators authorized to merge there. GitHub API authenticity and availability
   are trusted. A compromised GitHub account can authorize another wallet; numeric
   IDs prevent simple login reuse from satisfying the PR-author check.
 - Code evidence is deliberately bounded: at most 8 code files, 12,000 UTF-8 bytes

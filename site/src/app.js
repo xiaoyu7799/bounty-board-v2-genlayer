@@ -1,3 +1,5 @@
+import { verdictActions } from './deadlines.js';
+import { stakeForUnits, formatWeiAsGen } from './amounts.js';
 import { writeAsDisplayed, fundTemporary, genToUnits } from './wallet-write.js';
 // Bounty Board v2 — frontend.
 // Display rule: every displayed or exported value comes from a
@@ -232,7 +234,7 @@ function fmtGenFromUnits(units) {
   return `${(Number(units) / 1000).toFixed(3)} ${t(lang, 'genUnit')}`;
 }
 function fmtGenFromWei(wei) {
-  return `${(Number(BigInt(wei)) / 1e18).toFixed(3)} ${t(lang, 'genUnit')}`;
+  return `${formatWeiAsGen(wei)} ${t(lang, 'genUnit')}`;
 }
 function shortAddr(address) {
   if (!address) return t(lang, 'empty');
@@ -274,11 +276,12 @@ function actionButtons(bounty) {
   }
   if (bounty.status === 'CLAIMED' && me === (bounty.issuer || '').toLowerCase()) add('release', t(lang, 'release'));
   if (bounty.status === 'DELIVERED' && me === (bounty.claimed_by || '').toLowerCase()) add('withdraw-delivery', t(lang, 'withdrawDelivery'));
-  if (bounty.status === 'DELIVERED') add('evaluate', t(lang, 'evaluate'));
-  if (bounty.status === 'VERDICT_PENDING' && me === (bounty.claimed_by || '').toLowerCase() && !bounty.challenge && Date.now() / 1000 < bounty.challenge_deadline && bounty.challenge_count < 2) add('challenge', t(lang, 'challenge'));
-  if (bounty.status === 'VERDICT_PENDING' && bounty.challenge) add('resolve', t(lang, 'resolveChallenge'));
-  if (bounty.status === 'VERDICT_PENDING' && !bounty.challenge &&
-      Date.now() / 1000 >= bounty.challenge_deadline) add('execute', t(lang, 'execute'));
+  const policy = verdictActions(bounty, Date.now() / 1000,
+    me === (bounty.claimed_by || '').toLowerCase());
+  if (policy.evaluate) add('evaluate', t(lang, 'evaluate'));
+  if (policy.challenge) add('challenge', t(lang, 'challenge'));
+  if (policy.resolve) add('resolve', t(lang, 'resolveChallenge'));
+  if (policy.execute) add('execute', t(lang, 'execute'));
   return btns.join('');
 }
 
@@ -501,10 +504,14 @@ function bindForms() {
     const action = btn.dataset.action;
     if (action === 'claim') {
       const token = `bb:61999:${APP_CONFIG.CONTRACT_ADDRESS.toLowerCase()}:${bountyId}:${wallet.address}`;
-      const login = window.prompt(t(lang, 'hunterLogin') + '\nSet this exact token as a whitespace-separated entry in your GitHub bio before claiming:\n' + token);
+      const login = window.prompt(t(lang, 'hunterLogin') + '\nProof token (repository identity file or GitHub bio):\n' + token);
       if (!login) return;
-      const stake = Math.min(10000, Math.max(1000, Math.floor(bounty.amount / 10)));
-      await runWrite(t(lang, 'claim'), 'claim_bounty', [bountyId, login.trim().toLowerCase()],
+      const identityRepo = window.prompt('Identity proof repository (owner/repo); leave empty to use GitHub bio', APP_CONFIG.REPO_SLUG);
+      if (identityRepo === null) return;
+      const identitySha = identityRepo ? window.prompt('Commit SHA already merged to the repository default branch. File path: identity/' + wallet.address + '/' + bountyId + '.txt; file must contain only the proof token.') : '';
+      if (identitySha === null) return;
+      const stake = stakeForUnits(bounty.amount);
+      await runWrite(t(lang, 'claim'), 'claim_bounty', [bountyId, login.trim().toLowerCase(), identityRepo.trim(), identitySha.trim()],
         BigInt(stake) * APP_CONFIG.WEI_PER_UNIT);
     } else if (action === 'submit') {
       const prUrl = window.prompt(t(lang, 'prLink'));

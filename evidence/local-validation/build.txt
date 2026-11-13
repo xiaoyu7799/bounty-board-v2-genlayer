@@ -4,7 +4,7 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
 > node scripts/build_site.mjs
 
 
-  dist/app.js  623.3kb
+  dist/app.js  624.9kb
 
-⚡ Done in 121ms
+⚡ Done in 110ms
 site built: dist/app.js, dist/styles.css

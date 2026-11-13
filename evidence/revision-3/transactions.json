@@ -1,0 +1,101 @@
+{
+  "network": "Stable Studionet",
+  "chain_id": 61999,
+  "contract": "0xb783CD72882e4403aC236237Ab231cfED7172f49",
+  "accounts": {
+    "deployer": "0x366b8Cca66322E87a498E59B922be18A8bD0d0E0",
+    "issuer": "0x160c1ff68d853040e80b39c46305592260cCb520",
+    "hunter": "0x9ff7dDA6F36D494bc6d66B56233d296073339650",
+    "stranger": "0xdf8a329f69Bc2d0Bf493633a5d0937644C3f05ce"
+  },
+  "transactions": [
+    {
+      "label": "deploy-r3",
+      "role": "deployer",
+      "method": "deploy",
+      "args": [],
+      "value_units": 0,
+      "hash": "0xd15c112687419c3b8707000fbc96e4ad8d1b34cafd4684ed84a4387a9267586d",
+      "nonce": 0,
+      "submitted_at": "2026-11-13T15:04:39.202Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS"
+    },
+    {
+      "label": "post-bb-r3-code",
+      "role": "issuer",
+      "method": "post_bounty",
+      "args": [
+        "bb-r3-code",
+        1000,
+        0,
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior."
+      ],
+      "value_units": 1000,
+      "hash": "0xfa65e826b2f993b42f2712944ac063d7e226e14301e75aba1b8d5ffe7fa3de83",
+      "nonce": 0,
+      "submitted_at": "2026-11-13T15:08:13.080Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS"
+    },
+    {
+      "label": "post-bb-r3-fake",
+      "role": "issuer",
+      "method": "post_bounty",
+      "args": [
+        "bb-r3-fake",
+        1000,
+        0,
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior."
+      ],
+      "value_units": 1000,
+      "hash": "0xad1f1f2d4608f355983e520e82a2e9af4844113690953778aa547dbeedc0724b",
+      "nonce": 1,
+      "submitted_at": "2026-11-13T15:08:59.541Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS"
+    },
+    {
+      "label": "reject-wrong-value",
+      "role": "stranger",
+      "method": "post_bounty",
+      "args": [
+        "bb-r3-badvalue",
+        1000,
+        0,
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "Invalid payment rejection check"
+      ],
+      "value_units": 999,
+      "hash": "0x74cfb1c50d00214c4cc9e1288eb524a408d231afa8fd3e7cfb61197f4aa007aa",
+      "nonce": 0,
+      "submitted_at": "2026-11-13T15:09:32.276Z",
+      "status": "ACCEPTED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS"
+    },
+    {
+      "label": "reject-unmerged-identity",
+      "role": "hunter",
+      "method": "claim_bounty",
+      "args": [
+        "bb-r3-code",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "b0e4eef560f5b8d802cc5dcd58cb079d456a4f50"
+      ],
+      "value_units": 1000,
+      "hash": "0x21baad733fb08e2d9ecdd9a2bfff7f6364145e90789a98d502e5a4b194931759",
+      "nonce": 0,
+      "submitted_at": "2026-11-13T15:11:06.751Z",
+      "status": "BROADCAST_PREPARED",
+      "broadcast_error": "The operation was aborted due to timeout"
+    }
+  ],
+  "updated_at": "2026-11-13T15:11:31.755Z"
+}

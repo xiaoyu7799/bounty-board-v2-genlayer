@@ -39,10 +39,4 @@ export async function fundTemporary({ wallet, rpc, currentWallet }) {
   return { address, balance: await rpc('eth_getBalance', [address, 'latest']) };
 }
 
-export function genToUnits(text) {
-  if (!/^\d+(\.\d{1,3})?$/.test(text)) throw Error('INVALID_GEN_AMOUNT');
-  const [whole, fraction = ''] = text.split('.');
-  const units = BigInt(whole) * 1000n + BigInt(fraction.padEnd(3, '0'));
-  if (units < 1000n || units > 200000n) throw Error('INVALID_GEN_AMOUNT');
-  return Number(units);
-}
+export { genToUnits } from './amounts.js';

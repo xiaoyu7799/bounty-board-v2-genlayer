@@ -10,7 +10,10 @@ remain unchanged.
 The API gate verifies locked repository, merged status, merge SHA, PR author
 login **and numeric ID**, bounty-ID commit, minimum code changes and merged tree
 membership. Identity is verified at claim through a wallet-, bounty-, network-
-and contract-specific token in the GitHub user's public profile bio. Each
+and contract-specific token in the GitHub user's public profile bio, or in
+`identity/<wallet>/<bounty>.txt` at a supplied immutable commit in an owned
+repository. Repository proofs verify `owner.id`, login and default-branch ancestry
+through the compare API before reading the exact token. Fork-only commits fail. Each
 validator fetches that profile independently. The PR-author identity is then
 compared to the immutable claim record, rather than a user-supplied name alone.
 

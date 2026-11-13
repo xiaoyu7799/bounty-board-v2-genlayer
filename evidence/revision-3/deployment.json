@@ -1,0 +1,9 @@
+{
+  "network": "Stable Studionet",
+  "chain_id": 61999,
+  "contractAddress": "0xb783CD72882e4403aC236237Ab231cfED7172f49",
+  "deployTxHash": "0xd15c112687419c3b8707000fbc96e4ad8d1b34cafd4684ed84a4387a9267586d",
+  "contractSha256": "c12961d63d460d688df8c58470befd19b46c7254cf3bd8e64bffc1a87256181b",
+  "receiptStatus": "FINALIZED",
+  "execution": "SUCCESS"
+}

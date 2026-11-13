@@ -1,12 +1,12 @@
 // Bounty Board v2 — frontend configuration.
 // All displayed values come from FINALIZED get_* readbacks of this contract.
 export const APP_CONFIG = {
-  REMEDIATED_DEPLOYMENT: false, // Legacy address is read-only until new deployment is verified.
+  REMEDIATED_DEPLOYMENT: false, // Revised address remains read-only until full live acceptance.
   RPC_URL: 'https://studio.genlayer.com/api',
   CHAIN_ID: 61999,
   NETWORK_NAME: 'Stable Studionet',
-  CONTRACT_ADDRESS: '0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3',
-  EXPLORER_ADDRESS: 'https://explorer-studio.genlayer.com/address/0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3',
+  CONTRACT_ADDRESS: '0xb783CD72882e4403aC236237Ab231cfED7172f49',
+  EXPLORER_ADDRESS: 'https://explorer-studio.genlayer.com/address/0xb783CD72882e4403aC236237Ab231cfED7172f49',
   EXPLORER_TX: 'https://explorer-studio.genlayer.com/tx/',
   REPO_SLUG: 'xiaoyu7799/bounty-board-v2-genlayer',
   REPO_URL: 'https://github.com/xiaoyu7799/bounty-board-v2-genlayer',
