@@ -14,8 +14,10 @@ import sys
 import types
 import unittest
 from dataclasses import dataclass
+from pathlib import Path
+from datetime import datetime, timezone
 
-CONTRACT = '/home/hatch/workspace/build-nov10/a1-bounty-v2/repo/contracts/bounty_board.py'
+CONTRACT = str(Path(__file__).resolve().parents[1] / 'contracts/bounty_board.py')
 ISSUER = '0x' + '11' * 20
 HUNTER = '0x' + '22' * 20
 STRANGER = '0x' + '33' * 20
@@ -39,6 +41,10 @@ class Runtime:
     """Scripted GitHub API + scripted scorer, routed by URL."""
 
     def __init__(self):
+        self.identity_wallet = HUNTER
+        self.identity_on_branch = True
+        self.identity_owner = 'xiaoyu7799'
+        self.code_body = 'export const implementation = true;\n'
         self.prs = {}          # (slug, number) -> pr object dict
         self.commits = {}      # (slug, number) -> list of commit dicts
         self.files = {}        # (slug, number) -> list of file dicts
@@ -56,7 +62,7 @@ class Runtime:
                 merged=True, commit_messages=None, file_list=None, tree_paths=None):
         self.prs[(slug, number)] = {
             'merged': merged, 'merge_commit_sha': sha,
-            'user': {'login': author}}
+            'user': {'login': author, 'id': 123}}
         self.commits[(slug, number)] = [
             {'commit': {'message': m}} for m in
             (commit_messages or ['deliver bb-0001: implement the bounty'])]
@@ -74,6 +80,17 @@ class Runtime:
         self.fetches.append(url)
         if url in self.http_fail_urls:
             raise Exception('mock http failure')
+        if url.startswith('https://api.github.com/users/'):
+            return Response(200, {}, json.dumps({'login': url.rsplit('/', 1)[1], 'id': 123,
+                'bio': 'bb:61999:' + gl.message.contract_address + ':bb-0001:' + self.identity_wallet +
+                ' bb:61999:' + gl.message.contract_address + ':bb-0002:' + self.identity_wallet +
+                ' bb:61999:' + gl.message.contract_address + ':bb-0003:' + self.identity_wallet}).encode())
+        if '/compare/' in url:
+            return Response(200, {}, json.dumps({'status': 'ahead' if self.identity_on_branch else 'diverged',
+                'merge_base_commit': {'sha': 'c' * 40}}).encode())
+        if url == 'https://api.github.com/repos/' + SLUG:
+            return Response(200, {}, json.dumps({'owner': {'login': self.identity_owner, 'id': 123},
+                'default_branch': 'main'}).encode())
         if url.startswith('https://api.github.com/repos/'):
             rest = url[len('https://api.github.com/repos/'):]
             if '/pulls/' in rest and rest.endswith('/commits?per_page=100'):
@@ -105,6 +122,10 @@ class Runtime:
             parts = url[len('https://raw.githubusercontent.com/'):].split('/')
             slug = parts[0] + '/' + parts[1]
             sha, path = parts[2], '/'.join(parts[3:])
+            if path.startswith('identity/'):
+                return Response(200, {}, ('bb:61999:' + gl.message.contract_address + ':bb-0001:' + self.identity_wallet).encode())
+            if path.endswith('.js'):
+                return Response(200, {}, self.code_body.encode())
             entry = self.notes.get((slug, sha, path))
             if entry is None or entry[0] is None:
                 return Response(404, {}, b'')
@@ -169,11 +190,12 @@ class _Message(types.SimpleNamespace):
     pass
 
 
-_message = _Message(sender_address=ISSUER, value=0)
+_message = _Message(sender_address=ISSUER, value=0, contract_address='0x' + '44' * 20)
 gl = types.SimpleNamespace(
     Contract=object,
     public=types.SimpleNamespace(write=_Write(), view=lambda f: f),
     message=_message,
+    message_raw={'datetime': '2026-11-13T00:00:00+00:00'},
     vm=types.SimpleNamespace(Return=Return,
                              run_nondet_unsafe=lambda a, b: runtime.run(a, b)),
     nondet=types.SimpleNamespace(
@@ -207,6 +229,7 @@ class BountyBoardTest(unittest.TestCase):
     def setUp(self):
         global runtime
         runtime = Runtime()
+        gl.message_raw['datetime'] = '2026-11-13T00:00:00+00:00'
         sys.modules['genlayer'].gl.nondet.web.get = lambda url: runtime.request(url)
         sys.modules['genlayer'].gl.nondet.web.request = lambda url, method='GET': runtime.request(url, method)
         sys.modules['genlayer'].gl.nondet.exec_prompt = lambda prompt: runtime.prompt(prompt)
@@ -242,6 +265,9 @@ class BountyBoardTest(unittest.TestCase):
         return call(self.c, sender, 0, self.c.evaluate_delivery, bounty_id)
 
     def execute(self, bounty_id='bb-0001', sender=ISSUER):
+        deadline = self.bounty(bounty_id).get('challenge_deadline', 0)
+        if not self.bounty(bounty_id).get('challenge'):
+            gl.message_raw['datetime'] = datetime.fromtimestamp(deadline, timezone.utc).isoformat()
         return call(self.c, sender, 0, self.c.execute_verdict, bounty_id)
 
     def withdraw(self, sender):
@@ -450,11 +476,7 @@ class BountyBoardTest(unittest.TestCase):
         with self.assertRaisesRegex(Exception, 'SUBMITTER_NOT_CLAIMANT'):
             self.submit(sender=STRANGER)
         self.submit()
-        with self.assertRaisesRegex(Exception, 'EVALUATOR_NOT_ISSUER'):
-            self.evaluate(sender=HUNTER)
-        self.evaluate()
-        with self.assertRaisesRegex(Exception, 'EXECUTOR_NOT_PARTY'):
-            self.execute(sender=STRANGER)
+        self.evaluate(sender=HUNTER)
         with self.assertRaisesRegex(Exception, 'CHALLENGER_NOT_HUNTER'):
             call(self.c, ISSUER, 0, self.c.challenge_verdict, 'bb-0001',
                  'https://github.com/%s/pull/1' % SLUG, 'reason', 'ACCEPT')
@@ -570,6 +592,123 @@ class BountyBoardTest(unittest.TestCase):
         self.assertEqual(b['status'], 'SETTLED_ACCEPT')
         self.assertEqual(len(b['contradictions']), 1)
         self.assertEqual(b['contradictions'][0]['claimed_verdict'], 'REJECT')
+
+    def test_identity_theft_refunds_and_cannot_claim(self):
+        self.post()
+        runtime.identity_wallet = STRANGER
+        out = json.loads(self.claim())
+        self.assertFalse(out['accepted'])
+        self.assertIn('PROOF_MISSING', out['reason'])
+        self.assertEqual(self.bounty()['status'], 'OPEN')
+        self.assertEqual(self.withdrawable(HUNTER), 1000)
+
+    def test_numeric_github_identity_cannot_be_replaced_by_same_login(self):
+        self.post(); self.claim(); self.submit()
+        runtime.prs[(SLUG, 1)]['user']['id'] = 999
+        self.evaluate()
+        self.assertEqual(self.bounty()['pending_verdict']['verdict'], 'FAKE')
+
+    def test_immutable_code_in_prompt_and_manifest_hash(self):
+        runtime.code_body = 'export const actualImplementation = "bounded code";'
+        self.post(); self.claim(); self.submit(); self.evaluate()
+        data = json.loads(runtime.prompts[0].split('INPUT=')[1])
+        self.assertEqual(data['immutable_code'][0]['content'], runtime.code_body)
+        self.assertEqual(data['immutable_code'][0]['sha256'], hashlib.sha256(runtime.code_body.encode()).hexdigest())
+        code_fetches = [u for u in runtime.fetches if u.startswith('https://raw.') and u.endswith('.js')]
+        self.assertTrue(code_fetches)
+        self.assertTrue(all('/' + 'a' * 40 + '/' in u for u in code_fetches))
+
+    def test_oversized_code_never_scores_or_writes_verdict(self):
+        self.post(); self.claim(); self.submit()
+        runtime.code_body = 'x' * 12001
+        before = self.c.state_json
+        with self.assertRaisesRegex(Exception, 'EVIDENCE_SIZE_LIMIT'):
+            self.evaluate()
+        self.assertEqual(self.c.state_json, before)
+        self.assertEqual(runtime.prompts, [])
+
+    def test_missing_immutable_code_is_retryable(self):
+        self.post(); self.claim(); self.submit()
+        runtime.http_fail_urls.add('https://raw.githubusercontent.com/' + SLUG + '/' + 'a' * 40 + '/site/src/app.js')
+        with self.assertRaisesRegex(Exception, 'IMMUTABLE_CODE_UNAVAILABLE'):
+            self.evaluate()
+        self.assertEqual(self.bounty()['status'], 'DELIVERED')
+
+    def test_validator_rejects_changed_code_bytes(self):
+        self.post(); self.claim(); self.submit()
+        def disagree(leader, validator):
+            proposed = leader()
+            runtime.code_body = 'different implementation'
+            if not validator(Return(proposed)):
+                raise Exception('CONSENSUS_REJECTED_LOCAL_MOCK')
+            return proposed
+        runtime.run = disagree
+        with self.assertRaisesRegex(Exception, 'CONSENSUS_REJECTED'):
+            self.evaluate()
+        self.assertEqual(self.bounty()['status'], 'DELIVERED')
+
+    def test_nonzero_window_boundary_and_permissionless_settlement(self):
+        self.post(); self.claim(); self.submit(); self.evaluate(sender=STRANGER)
+        deadline = self.bounty()['challenge_deadline']
+        self.assertEqual(deadline - self.mod._now(), 86400)
+        for now in [deadline - 86400, deadline - 1]:
+            gl.message_raw['datetime'] = datetime.fromtimestamp(now, timezone.utc).isoformat()
+            with self.assertRaisesRegex(Exception, 'CHALLENGE_WINDOW_OPEN'):
+                call(self.c, ISSUER, 0, self.c.execute_verdict, 'bb-0001')
+        gl.message_raw['datetime'] = datetime.fromtimestamp(deadline, timezone.utc).isoformat()
+        with self.assertRaisesRegex(Exception, 'CHALLENGE_WINDOW_CLOSED'):
+            call(self.c, HUNTER, 0, self.c.challenge_verdict, 'bb-0001',
+                 'https://github.com/' + SLUG + '/pull/1', 'disagree', 'REJECT')
+        call(self.c, STRANGER, 0, self.c.execute_verdict, 'bb-0001')
+        with self.assertRaisesRegex(Exception, 'INVALID_STATE'):
+            call(self.c, STRANGER, 0, self.c.execute_verdict, 'bb-0001')
+        self.assertEqual(self.withdrawable(HUNTER), 11000)
+
+    def test_hunter_challenge_cannot_be_raced_and_stranger_resolves(self):
+        self.post(); self.claim(); self.submit(); self.evaluate()
+        runtime.good_pr(SLUG, 2)
+        deadline = self.bounty()['challenge_deadline']
+        gl.message_raw['datetime'] = datetime.fromtimestamp(deadline - 1, timezone.utc).isoformat()
+        call(self.c, HUNTER, 0, self.c.challenge_verdict, 'bb-0001',
+             'https://github.com/' + SLUG + '/pull/2', 'disagree', 'REJECT')
+        gl.message_raw['datetime'] = datetime.fromtimestamp(deadline + 1, timezone.utc).isoformat()
+        with self.assertRaisesRegex(Exception, 'PENDING_CHALLENGE_BLOCKS_EXECUTION'):
+            call(self.c, ISSUER, 0, self.c.execute_verdict, 'bb-0001')
+        call(self.c, STRANGER, 0, self.c.resolve_challenge, 'bb-0001')
+        self.assertEqual(self.bounty()['challenge_deadline'], deadline + 1 + 86400)
+        self.execute(sender=STRANGER)
+        self.assertEqual(self.bounty()['status'], 'SETTLED_ACCEPT')
+
+    def test_repository_identity_proof_accepts_owner_default_branch(self):
+        self.post()
+        out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
+            'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
+        self.assertTrue(out['accepted'])
+        self.assertEqual(self.bounty()['hunter_github_id'], 123)
+        self.assertEqual(self.bounty()['identity_sha'], 'c' * 40)
+
+    def test_repository_identity_rejects_unmerged_fork_commit(self):
+        self.post(); runtime.identity_on_branch = False
+        out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
+            'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
+        self.assertFalse(out['accepted'])
+        self.assertIn('NOT_ON_DEFAULT_BRANCH', out['reason'])
+        self.assertEqual(self.withdrawable(HUNTER), 1000)
+
+    def test_repository_identity_rejects_wrong_owner_and_wallet(self):
+        for kind in ['owner', 'wallet']:
+            self.setUp(); self.post()
+            if kind == 'owner': runtime.identity_owner = 'attacker'
+            else: runtime.identity_wallet = STRANGER
+            out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
+                'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
+            self.assertFalse(out['accepted'])
+            self.assertEqual(self.bounty()['status'], 'OPEN')
+
+    def test_bounty_id_cannot_escape_identity_proof_path(self):
+        out = json.loads(self.post(bounty_id='../unsafe'))
+        self.assertFalse(out['accepted'])
+        self.assertEqual(self.state()['bounties'], {})
 
 
 if __name__ == '__main__':

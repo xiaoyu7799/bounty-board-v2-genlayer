@@ -1158,12 +1158,19 @@ function checksumAddress(address_, chainId) {
   checksumAddressCache.set(`${address_}.${chainId}`, result);
   return result;
 }
+function getAddress(address, chainId) {
+  if (!isAddress(address, { strict: false }))
+    throw new InvalidAddressError({ address });
+  return checksumAddress(address, chainId);
+}
 var checksumAddressCache;
 var init_getAddress = __esm({
   "node_modules/viem/_esm/utils/address/getAddress.js"() {
+    init_address();
     init_toBytes();
     init_keccak256();
     init_lru();
+    init_isAddress();
     checksumAddressCache = /* @__PURE__ */ new LruMap(8192);
   }
 });
@@ -4438,12 +4445,53 @@ var init_secp256k1 = __esm({
   }
 });
 
-// node_modules/genlayer-js/dist/chunk-MLKGABMK.js
-var __defProp = Object.defineProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
+// site/src/deadlines.js
+function verdictActions(bounty, nowSeconds, isHunter) {
+  if (!Number.isFinite(nowSeconds) || nowSeconds < 0) throw Error("INVALID_TIME");
+  const result = { evaluate: false, challenge: false, resolve: false, execute: false };
+  if (bounty.status === "DELIVERED") result.evaluate = true;
+  if (bounty.status !== "VERDICT_PENDING") return result;
+  const deadline = bounty.challenge_deadline;
+  if (!Number.isSafeInteger(deadline) || deadline < 0) return result;
+  if (bounty.challenge) {
+    result.resolve = true;
+    return result;
+  }
+  const expired = nowSeconds >= deadline;
+  result.execute = expired;
+  result.challenge = Boolean(isHunter && !expired && bounty.challenge_count < 2);
+  return result;
+}
+
+// site/src/amounts.js
+var WEI_PER_UNIT = 10n ** 15n;
+var UNITS_PER_GEN = 1000n;
+var MIN_BOUNTY_UNITS = 1e3;
+var MAX_BOUNTY_UNITS = 2e5;
+function genToUnits(text) {
+  if (typeof text !== "string" || !/^\d+(\.\d{1,3})?$/.test(text)) {
+    throw Error("INVALID_GEN_AMOUNT");
+  }
+  const [whole, fraction = ""] = text.split(".");
+  const units = BigInt(whole) * UNITS_PER_GEN + BigInt(fraction.padEnd(3, "0"));
+  if (units < BigInt(MIN_BOUNTY_UNITS) || units > BigInt(MAX_BOUNTY_UNITS)) {
+    throw Error("INVALID_GEN_AMOUNT");
+  }
+  return Number(units);
+}
+function stakeForUnits(amount) {
+  if (!Number.isSafeInteger(amount) || amount < MIN_BOUNTY_UNITS || amount > MAX_BOUNTY_UNITS) {
+    throw Error("INVALID_BOUNTY_UNITS");
+  }
+  return Math.min(1e4, Math.max(1e3, Math.floor(amount / 10)));
+}
+function formatWeiAsGen(value) {
+  const wei = BigInt(value);
+  if (wei < 0n) throw Error("NEGATIVE_BALANCE");
+  const whole = wei / 10n ** 18n;
+  const thousandths = wei % 10n ** 18n / WEI_PER_UNIT;
+  return `${whole}.${thousandths.toString().padStart(3, "0")}`;
+}
 
 // node_modules/viem/_esm/accounts/utils/publicKeyToAddress.js
 init_getAddress();
@@ -5399,7 +5447,66 @@ function serializeSignature({ r, s, to = "hex", v, yParity }) {
 
 // node_modules/viem/_esm/index.js
 init_encodeFunctionData();
+init_getAddress();
 init_toHex();
+
+// site/src/wallet-write.js
+async function writeAsDisplayed({ wallet: wallet2, tempAccount: tempAccount2, rpc, chainId, to, data, value = 0n, currentWallet }) {
+  if (!wallet2?.address) throw Error("CONNECT_WALLET");
+  const address = wallet2.address.toLowerCase();
+  const stillSelected = () => {
+    if (currentWallet() !== wallet2) throw Error("DISPLAY_ACCOUNT_CHANGED");
+  };
+  if (wallet2.kind === "injected") {
+    const provider = wallet2.provider;
+    const network = await provider.request({ method: "eth_chainId" });
+    const accounts = await provider.request({ method: "eth_accounts" });
+    if (Number(BigInt(network)) !== chainId) throw Error("WRONG_CHAIN");
+    if (accounts[0]?.toLowerCase() !== address) throw Error("WALLET_ACCOUNT_CHANGED");
+    stillSelected();
+    return provider.request({ method: "eth_sendTransaction", params: [{
+      from: address,
+      to,
+      data,
+      value: `0x${BigInt(value).toString(16)}`,
+      gas: "0x1312d00",
+      gasPrice: "0x0"
+    }] });
+  }
+  if (wallet2.kind !== "temp" || tempAccount2?.address.toLowerCase() !== address) throw Error("SIGNER_MISMATCH");
+  if (Number(BigInt(await rpc("eth_chainId", []))) !== chainId) throw Error("WRONG_CHAIN");
+  const balance = BigInt(await rpc("eth_getBalance", [address, "latest"]));
+  if (balance < BigInt(value)) throw Error("FUND_DISPLAYED_TEMP_ACCOUNT_FIRST");
+  const nonce = await rpc("eth_getTransactionCount", [address, "latest"]);
+  stillSelected();
+  const serialized = await tempAccount2.signTransaction({
+    chainId,
+    type: "legacy",
+    to,
+    data,
+    nonce: Number(BigInt(nonce)),
+    gas: 20000000n,
+    gasPrice: 0n,
+    value: BigInt(value)
+  });
+  stillSelected();
+  return rpc("eth_sendRawTransaction", [serialized]);
+}
+async function fundTemporary({ wallet: wallet2, rpc, currentWallet }) {
+  if (wallet2?.kind !== "temp") throw Error("SELECT_TEMP_ACCOUNT");
+  const address = getAddress(wallet2.address);
+  if (Number(BigInt(await rpc("eth_chainId", []))) !== 61999) throw Error("WRONG_CHAIN");
+  if (currentWallet() !== wallet2) throw Error("DISPLAY_ACCOUNT_CHANGED");
+  await rpc("sim_fundAccount", [address, Number(20n * 10n ** 18n)]);
+  return { address, balance: await rpc("eth_getBalance", [address, "latest"]) };
+}
+
+// node_modules/genlayer-js/dist/chunk-MLKGABMK.js
+var __defProp = Object.defineProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 
 // node_modules/genlayer-js/dist/chunk-XCQTIUTU.js
 var chains_exports = {};
@@ -22221,11 +22328,13 @@ var createAccount = (accountPrivateKey) => {
 
 // site/src/config.js
 var APP_CONFIG = {
+  REMEDIATED_DEPLOYMENT: false,
+  // Revised address remains read-only until full live acceptance.
   RPC_URL: "https://studio.genlayer.com/api",
   CHAIN_ID: 61999,
   NETWORK_NAME: "Stable Studionet",
-  CONTRACT_ADDRESS: "0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3",
-  EXPLORER_ADDRESS: "https://explorer-studio.genlayer.com/address/0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3",
+  CONTRACT_ADDRESS: "0xb783CD72882e4403aC236237Ab231cfED7172f49",
+  EXPLORER_ADDRESS: "https://explorer-studio.genlayer.com/address/0xb783CD72882e4403aC236237Ab231cfED7172f49",
   EXPLORER_TX: "https://explorer-studio.genlayer.com/tx/",
   REPO_SLUG: "xiaoyu7799/bounty-board-v2-genlayer",
   REPO_URL: "https://github.com/xiaoyu7799/bounty-board-v2-genlayer",
@@ -22691,18 +22800,21 @@ async function rpcCall(method, params = []) {
         body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
         signal: AbortSignal.timeout(6e4)
       });
-    } catch {
+    } catch (error) {
+      if (method === "eth_sendRawTransaction" || method === "sim_fundAccount") throw error;
       await sleep(Math.min(5e3 * (attempt + 1), 3e4));
       continue;
     }
     if (!res.ok) {
+      if (method === "eth_sendRawTransaction" || method === "sim_fundAccount") throw Error("BROADCAST_UNCERTAIN");
       await sleep(Math.min(5e3 * (attempt + 1), 3e4));
       continue;
     }
     let body;
     try {
       body = await res.json();
-    } catch {
+    } catch (error) {
+      if (method === "eth_sendRawTransaction" || method === "sim_fundAccount") throw Error("BROADCAST_UNCERTAIN");
       await sleep(Math.min(5e3 * (attempt + 1), 3e4));
       continue;
     }
@@ -22776,23 +22888,23 @@ async function waitFinalized(hash2, timeoutMs = 15 * 60 * 1e3) {
   return null;
 }
 async function sendWrite(method, args, valueWei = 0n) {
-  if (!tempAccount) throw new Error("ENABLE_TEMPORARY_TEST_ACCOUNT");
+  if (!APP_CONFIG.REMEDIATED_DEPLOYMENT) throw Error("NEW_CONTRACT_DEPLOYMENT_REQUIRED");
+  const selected = wallet;
+  if (!selected) throw Error("CONNECT_WALLET");
   const data = transactions2.serialize([
     calldata2.encode(calldata2.makeCalldataObject(method, args, {})),
     false
   ]);
-  const nonce = await rpcCall("eth_getTransactionCount", [tempAccount.address, "latest"]);
-  const serialized = await tempAccount.signTransaction({
+  return writeAsDisplayed({
+    wallet: selected,
+    tempAccount,
+    rpc: rpcCall,
     chainId: APP_CONFIG.CHAIN_ID,
-    type: "legacy",
     to: chain.consensusMainContract.address,
-    data: envelope(tempAccount.address, APP_CONFIG.CONTRACT_ADDRESS, data),
-    nonce: Number(BigInt(nonce)),
-    gas: 20000000n,
-    gasPrice: 0n,
-    value: BigInt(valueWei)
+    data: envelope(selected.address, APP_CONFIG.CONTRACT_ADDRESS, data),
+    value: valueWei,
+    currentWallet: () => wallet
   });
-  return rpcCall("eth_sendRawTransaction", [serialized]);
 }
 async function runWrite(label, method, args, valueWei = 0n) {
   setNotice(`${t(lang, "txSubmitted")}: ${label}\u2026`, "info");
@@ -22834,9 +22946,12 @@ async function connectInjected() {
     }
     wallet = {
       kind: "injected",
+      provider,
       address: (accounts[0] || "").toLowerCase(),
       label: `${window.okxwallet ? "OKX Wallet" : "Injected EVM Wallet"} ${(accounts[0] || "").slice(0, 6)}\u2026${(accounts[0] || "").slice(-4)}`
     };
+    provider.on?.("accountsChanged", disconnectWallet);
+    provider.on?.("chainChanged", disconnectWallet);
     renderWallet();
     renderAll();
   } catch (error) {
@@ -22859,7 +22974,7 @@ function disconnectWallet() {
   renderAll();
 }
 function fmtGenFromWei(wei) {
-  return `${(Number(BigInt(wei)) / 1e18).toFixed(3)} ${t(lang, "genUnit")}`;
+  return `${formatWeiAsGen(wei)} ${t(lang, "genUnit")}`;
 }
 function shortAddr2(address) {
   if (!address) return t(lang, "empty");
@@ -22895,10 +23010,15 @@ function actionButtons(bounty) {
   }
   if (bounty.status === "CLAIMED" && me === (bounty.issuer || "").toLowerCase()) add("release", t(lang, "release"));
   if (bounty.status === "DELIVERED" && me === (bounty.claimed_by || "").toLowerCase()) add("withdraw-delivery", t(lang, "withdrawDelivery"));
-  if (bounty.status === "DELIVERED" && me === (bounty.issuer || "").toLowerCase()) add("evaluate", t(lang, "evaluate"));
-  if (bounty.status === "VERDICT_PENDING" && me === (bounty.claimed_by || "").toLowerCase() && !bounty.challenge) add("challenge", t(lang, "challenge"));
-  if (bounty.status === "VERDICT_PENDING" && me === (bounty.issuer || "").toLowerCase() && bounty.challenge) add("resolve", t(lang, "resolveChallenge"));
-  if (bounty.status === "VERDICT_PENDING" && !bounty.challenge && (me === (bounty.issuer || "").toLowerCase() || me === (bounty.claimed_by || "").toLowerCase())) add("execute", t(lang, "execute"));
+  const policy = verdictActions(
+    bounty,
+    Date.now() / 1e3,
+    me === (bounty.claimed_by || "").toLowerCase()
+  );
+  if (policy.evaluate) add("evaluate", t(lang, "evaluate"));
+  if (policy.challenge) add("challenge", t(lang, "challenge"));
+  if (policy.resolve) add("resolve", t(lang, "resolveChallenge"));
+  if (policy.execute) add("execute", t(lang, "execute"));
   return btns.join("");
 }
 function renderLeaderboard() {
@@ -23018,7 +23138,15 @@ function renderWallet() {
       <button id="disconnect-btn">${esc2(t(lang, "disconnect"))}</button>`;
     $("#disconnect-btn").onclick = disconnectWallet;
     if (wallet.kind === "temp") {
-      el.insertAdjacentHTML("beforeend", `<p class="hint">${esc2(t(lang, "tempAccountNote"))}</p>`);
+      el.insertAdjacentHTML("beforeend", `<p class="hint">${esc2(t(lang, "tempAccountNote"))}</p><button id="fund-temp-btn">Fund displayed account (20 testnet GEN)</button>`);
+      $("#fund-temp-btn").onclick = async () => {
+        try {
+          const result = await fundTemporary({ wallet, rpc: rpcCall, currentWallet: () => wallet });
+          setNotice(`${result.address}: ${fmtGenFromWei(result.balance)} (faucet may settle later; check balance before spending)`, "info");
+        } catch (error) {
+          setNotice(error.message, "error");
+        }
+      };
     }
   }
 }
@@ -23058,7 +23186,13 @@ function bindForms() {
   $("#refresh-btn").onclick = refreshSnapshot;
   $("#post-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const amountUnits = Number($("#post-amount").value);
+    let amountUnits;
+    try {
+      amountUnits = genToUnits($("#post-amount").value);
+    } catch (error) {
+      setNotice(error.message, "error");
+      return;
+    }
     const valueWei = BigInt(amountUnits) * APP_CONFIG.WEI_PER_UNIT;
     await runWrite(t(lang, "postBounty"), "post_bounty", [
       $("#post-id").value.trim(),
@@ -23090,13 +23224,18 @@ function bindForms() {
     if (!bounty) return;
     const action = btn.dataset.action;
     if (action === "claim") {
-      const login = window.prompt(t(lang, "hunterLogin"));
+      const token = `bb:61999:${APP_CONFIG.CONTRACT_ADDRESS.toLowerCase()}:${bountyId}:${wallet.address}`;
+      const login = window.prompt(t(lang, "hunterLogin") + "\nProof token (repository identity file or GitHub bio):\n" + token);
       if (!login) return;
-      const stake = Math.min(1e4, Math.max(1e3, Math.floor(bounty.amount / 10)));
+      const identityRepo = window.prompt("Identity proof repository (owner/repo); leave empty to use GitHub bio", APP_CONFIG.REPO_SLUG);
+      if (identityRepo === null) return;
+      const identitySha = identityRepo ? window.prompt("Commit SHA already merged to the repository default branch. File path: identity/" + wallet.address + "/" + bountyId + ".txt; file must contain only the proof token.") : "";
+      if (identitySha === null) return;
+      const stake = stakeForUnits(bounty.amount);
       await runWrite(
         t(lang, "claim"),
         "claim_bounty",
-        [bountyId, login.trim().toLowerCase()],
+        [bountyId, login.trim().toLowerCase(), identityRepo.trim(), identitySha.trim()],
         BigInt(stake) * APP_CONFIG.WEI_PER_UNIT
       );
     } else if (action === "submit") {

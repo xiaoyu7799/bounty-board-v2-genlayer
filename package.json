@@ -1,1 +1,21 @@
-{"dependencies":{"genlayer-js":"1.1.8"},"description":"Bounty board: post a bounty, deliver with a GitHub pull request, consensus judges delivery quality, escrow releases by tier. GenLayer Stable Studionet.","devDependencies":{"esbuild":"0.25.5"},"name":"bounty-board-v2-genlayer","private":true,"scripts":{"build-site":"node scripts/build_site.mjs","deploy":"node scripts/deploy.mjs","flow":"node scripts/flow.mjs","test":"python3 -m unittest discover -s tests -v","test-frontend":"node --test tests/dossier.test.mjs && node scripts/i18n_check.mjs","verify":"node scripts/verify.mjs"},"type":"module","version":"1.0.0"}
+{
+  "dependencies": {
+    "genlayer-js": "1.1.8"
+  },
+  "description": "Bounty board: post a bounty, deliver with a GitHub pull request, consensus judges delivery quality, escrow releases by tier. GenLayer Stable Studionet.",
+  "devDependencies": {
+    "esbuild": "0.25.5"
+  },
+  "name": "bounty-board-v2-genlayer",
+  "private": true,
+  "scripts": {
+    "build-site": "node scripts/build_site.mjs",
+    "deploy": "node scripts/deploy.mjs",
+    "flow": "node scripts/flow.mjs",
+    "test": "python3 -m unittest discover -s tests -v",
+    "test-frontend": "node --test tests/*.test.mjs && node scripts/i18n_check.mjs",
+    "verify": "node scripts/verify.mjs"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

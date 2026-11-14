@@ -1,0 +1,46 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> bounty-board-v2-genlayer@1.0.0 test
+> python3 -m unittest discover -s tests -v
+
+test_accept_full_flow_and_conservation (test_bounty_board.BountyBoardTest.test_accept_full_flow_and_conservation) ... ok
+test_bounty_id_cannot_escape_identity_proof_path (test_bounty_board.BountyBoardTest.test_bounty_id_cannot_escape_identity_proof_path) ... ok
+test_challenge_flip_reject_to_accept (test_bounty_board.BountyBoardTest.test_challenge_flip_reject_to_accept) ... ok
+test_challenge_limit (test_bounty_board.BountyBoardTest.test_challenge_limit) ... ok
+test_contradiction_witness_kept_not_overwritten (test_bounty_board.BountyBoardTest.test_contradiction_witness_kept_not_overwritten) ... ok
+test_exits (test_bounty_board.BountyBoardTest.test_exits) ... ok
+test_failed_payable_takes_no_money (test_bounty_board.BountyBoardTest.test_failed_payable_takes_no_money) ... ok
+test_fake_author_mismatch (test_bounty_board.BountyBoardTest.test_fake_author_mismatch) ... ok
+test_fake_no_bounty_id_commit (test_bounty_board.BountyBoardTest.test_fake_no_bounty_id_commit) ... ok
+test_fake_not_merged (test_bounty_board.BountyBoardTest.test_fake_not_merged) ... ok
+test_fake_pr_404 (test_bounty_board.BountyBoardTest.test_fake_pr_404) ... ok
+test_fake_repo_mismatch_reaches_evaluation (test_bounty_board.BountyBoardTest.test_fake_repo_mismatch_reaches_evaluation) ... ok
+test_fake_small_change (test_bounty_board.BountyBoardTest.test_fake_small_change) ... ok
+test_fake_tree_missing (test_bounty_board.BountyBoardTest.test_fake_tree_missing) ... ok
+test_hunter_challenge_cannot_be_raced_and_stranger_resolves (test_bounty_board.BountyBoardTest.test_hunter_challenge_cannot_be_raced_and_stranger_resolves) ... ok
+test_identity_theft_refunds_and_cannot_claim (test_bounty_board.BountyBoardTest.test_identity_theft_refunds_and_cannot_claim) ... ok
+test_immutable_code_in_prompt_and_manifest_hash (test_bounty_board.BountyBoardTest.test_immutable_code_in_prompt_and_manifest_hash) ... ok
+test_mirror_disagreement_is_retryable_not_fake (test_bounty_board.BountyBoardTest.test_mirror_disagreement_is_retryable_not_fake) ... ok
+test_missing_immutable_code_is_retryable (test_bounty_board.BountyBoardTest.test_missing_immutable_code_is_retryable) ... ok
+test_nonzero_window_boundary_and_permissionless_settlement (test_bounty_board.BountyBoardTest.test_nonzero_window_boundary_and_permissionless_settlement) ... ok
+test_numeric_github_identity_cannot_be_replaced_by_same_login (test_bounty_board.BountyBoardTest.test_numeric_github_identity_cannot_be_replaced_by_same_login) ... ok
+test_oversized_code_never_scores_or_writes_verdict (test_bounty_board.BountyBoardTest.test_oversized_code_never_scores_or_writes_verdict) ... ok
+test_partial_flow (test_bounty_board.BountyBoardTest.test_partial_flow) ... ok
+test_prompt_injection_in_note_is_data_not_instruction (test_bounty_board.BountyBoardTest.test_prompt_injection_in_note_is_data_not_instruction) ... ok
+test_reject_flow_reputation_floor (test_bounty_board.BountyBoardTest.test_reject_flow_reputation_floor) ... ok
+test_repository_identity_proof_accepts_owner_default_branch (test_bounty_board.BountyBoardTest.test_repository_identity_proof_accepts_owner_default_branch) ... ok
+test_repository_identity_rejects_unmerged_fork_commit (test_bounty_board.BountyBoardTest.test_repository_identity_rejects_unmerged_fork_commit) ... ok
+test_repository_identity_rejects_wrong_owner_and_wallet (test_bounty_board.BountyBoardTest.test_repository_identity_rejects_wrong_owner_and_wallet) ... ok
+test_sender_binding (test_bounty_board.BountyBoardTest.test_sender_binding) ... ok
+test_sha256_vectors (test_bounty_board.BountyBoardTest.test_sha256_vectors) ... ok
+test_stake_clamp (test_bounty_board.BountyBoardTest.test_stake_clamp) ... ok
+test_unexpected_value_on_non_payable_is_credited_back (test_bounty_board.BountyBoardTest.test_unexpected_value_on_non_payable_is_credited_back) ... ok
+test_validator_rejects_changed_code_bytes (test_bounty_board.BountyBoardTest.test_validator_rejects_changed_code_bytes) ... ok
+test_validator_score_spread_rejects (test_bounty_board.BountyBoardTest.test_validator_score_spread_rejects) ... ok
+test_validator_tier_mismatch_rejects (test_bounty_board.BountyBoardTest.test_validator_tier_mismatch_rejects) ... ok
+test_verdict_derivation (test_bounty_board.BountyBoardTest.test_verdict_derivation) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.098s
+
+OK

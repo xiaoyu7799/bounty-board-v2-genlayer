@@ -1,9 +1,7 @@
-// Checkpoint / resume for the A1 v2 evidence flow.
+// Checkpoint / resume for the historical Bounty Board evidence flow.
 //
-// Sandra's decision, 2026-11-10: a long evidence run may checkpoint its
-// temporary account keys to a workdir file so a killed run resumes instead
-// of redeploying. This is the ONLY exception to "never write keys to disk".
-// Red lines, unchanged:
+// Temporary test-account keys are checkpointed outside the repository so
+// interrupted evidence runs can resume. Storage rules:
 //   - checkpoint lives at <workdir>/checkpoint.json — OUTSIDE repo/, never
 //     committed, never in any delivery doc, never copied anywhere else.
 //   - file is 0600, written atomically (tmp file + rename).
