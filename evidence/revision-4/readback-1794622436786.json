@@ -1,0 +1,276 @@
+{
+  "contract": "0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1",
+  "source_sha256": "45bd6d75c17c80f7b4c4628199c1e630b617e456dd2c7316cad2b596d96c7d38",
+  "code_matches_source": true,
+  "read_at": "2026-11-14T02:13:29.780Z",
+  "get_all_bounties": {
+    "bounties": {
+      "bb-r3-code": {
+        "amount": 1000,
+        "bounty_id": "bb-r3-code",
+        "challenge": null,
+        "challenge_count": 1,
+        "challenge_deadline": 1794708734,
+        "claimed_by": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+        "contradictions": [],
+        "delivery": {
+          "note_path": "",
+          "note_text": "Exact amount and deadline helper implementation with automated boundary and adversarial tests.",
+          "pr_number": 6,
+          "pr_url": "https://github.com/xiaoyu7799/bounty-board-v2-genlayer/pull/6"
+        },
+        "events": [
+          {
+            "actor": "0x160c1ff68d853040e80b39c46305592260ccb520",
+            "event": "POSTED",
+            "sequence": 1
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "IDENTITY_BOUND",
+            "sequence": 3
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "CLAIMED",
+            "sequence": 4
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "DELIVERED",
+            "sequence": 7
+          },
+          {
+            "actor": "0xdf8a329f69bc2d0bf493633a5d0937644c3f05ce",
+            "event": "VERDICT_PENDING",
+            "sequence": 9
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "CHALLENGED",
+            "sequence": 11
+          },
+          {
+            "actor": "0xdf8a329f69bc2d0bf493633a5d0937644c3f05ce",
+            "event": "CHALLENGE_RESOLVED",
+            "sequence": 12
+          }
+        ],
+        "expected_repo_slug": "xiaoyu7799/bounty-board-v2-genlayer",
+        "hunter_github_id": 350620374,
+        "hunter_github_login": "xiaoyu7799",
+        "identity_repo": "xiaoyu7799/bounty-board-v2-genlayer",
+        "identity_sha": "027cf7b173cccf57c992d7d3063f75ab04904e0a",
+        "issuer": "0x160c1ff68d853040e80b39c46305592260ccb520",
+        "last_audit": null,
+        "min_reputation": 0,
+        "pending_verdict": {
+          "author_match": true,
+          "changed_lines": 129,
+          "code_manifest": [
+            {
+              "path": "site/src/amounts.js",
+              "sha256": "b9e4df30472fa6a2c269fafc203f0b0d662859a462276843822c4ecb40e0f95a"
+            },
+            {
+              "path": "site/src/deadlines.js",
+              "sha256": "2a29ba4b3d2e13ee72d982e11cccd7005dde5dc9ad9581d85468604a8d81611a"
+            },
+            {
+              "path": "tests/policy.test.mjs",
+              "sha256": "44f36c5c7e0325f219d4aa6c9a84ced7fee277c2a3fdd740adf53b00c0252173"
+            }
+          ],
+          "commit_hit": true,
+          "completeness_score": 100,
+          "evidence_hash": "2d0654b24881b5a9989f257b2d6adbd3a43239800b47e7f87d974fa2cdabbd31",
+          "file_count": 3,
+          "merge_sha": "c0788e8ab9113b7f0a97f683dd98c47ba7ba3182",
+          "pr_number": 6,
+          "quality_score": 100,
+          "rationale": "The implementation fully covers exact monetary conversion, precision-safe formatting, stake clamping, and robust deadline/challenge boundary rules. Automated tests cover invalid amounts, precision, boundary times, challenge limits, and role behavior thoroughly.",
+          "round": 2,
+          "scope_fit_score": 100,
+          "verdict": "ACCEPT"
+        },
+        "requirements": "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior.",
+        "rounds": [
+          {
+            "author_match": true,
+            "changed_lines": 129,
+            "code_manifest": [
+              {
+                "path": "site/src/amounts.js",
+                "sha256": "b9e4df30472fa6a2c269fafc203f0b0d662859a462276843822c4ecb40e0f95a"
+              },
+              {
+                "path": "site/src/deadlines.js",
+                "sha256": "2a29ba4b3d2e13ee72d982e11cccd7005dde5dc9ad9581d85468604a8d81611a"
+              },
+              {
+                "path": "tests/policy.test.mjs",
+                "sha256": "44f36c5c7e0325f219d4aa6c9a84ced7fee277c2a3fdd740adf53b00c0252173"
+              }
+            ],
+            "commit_hit": true,
+            "completeness_score": 100,
+            "evidence_hash": "2d0654b24881b5a9989f257b2d6adbd3a43239800b47e7f87d974fa2cdabbd31",
+            "file_count": 3,
+            "merge_sha": "c0788e8ab9113b7f0a97f683dd98c47ba7ba3182",
+            "pr_number": 6,
+            "quality_score": 100,
+            "rationale": "amounts.js implements validated exact thousandth-GEN parsing, BigInt wei conversion, stake clamping, and precision-safe balance formatting. deadlines.js stops challenges and enables execution exactly at the deadline, blocks execution during pending challenges, and permits resolution regardless of account role. policy.test.mjs covers invalid amounts, large-balance precision, deadline boundaries, challenge limits, and role behavior. All changed files directly address the requirements.",
+            "round": 1,
+            "scope_fit_score": 100,
+            "verdict": "ACCEPT"
+          },
+          {
+            "author_match": true,
+            "changed_lines": 129,
+            "code_manifest": [
+              {
+                "path": "site/src/amounts.js",
+                "sha256": "b9e4df30472fa6a2c269fafc203f0b0d662859a462276843822c4ecb40e0f95a"
+              },
+              {
+                "path": "site/src/deadlines.js",
+                "sha256": "2a29ba4b3d2e13ee72d982e11cccd7005dde5dc9ad9581d85468604a8d81611a"
+              },
+              {
+                "path": "tests/policy.test.mjs",
+                "sha256": "44f36c5c7e0325f219d4aa6c9a84ced7fee277c2a3fdd740adf53b00c0252173"
+              }
+            ],
+            "commit_hit": true,
+            "completeness_score": 100,
+            "evidence_hash": "2d0654b24881b5a9989f257b2d6adbd3a43239800b47e7f87d974fa2cdabbd31",
+            "file_count": 3,
+            "merge_sha": "c0788e8ab9113b7f0a97f683dd98c47ba7ba3182",
+            "pr_number": 6,
+            "quality_score": 100,
+            "rationale": "The implementation fully covers exact monetary conversion, precision-safe formatting, stake clamping, and robust deadline/challenge boundary rules. Automated tests cover invalid amounts, precision, boundary times, challenge limits, and role behavior thoroughly.",
+            "round": 2,
+            "scope_fit_score": 100,
+            "verdict": "ACCEPT"
+          }
+        ],
+        "settlement": null,
+        "stake": 1000,
+        "status": "VERDICT_PENDING"
+      },
+      "bb-r3-fake": {
+        "amount": 1000,
+        "bounty_id": "bb-r3-fake",
+        "challenge": null,
+        "challenge_count": 0,
+        "challenge_deadline": 1794708433,
+        "claimed_by": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+        "contradictions": [],
+        "delivery": {
+          "note_path": "",
+          "note_text": "Cross-repository submission tests the locked target repository gate.",
+          "pr_number": 1,
+          "pr_url": "https://github.com/xiaoyu7799/bounty-fake-delivery/pull/1"
+        },
+        "events": [
+          {
+            "actor": "0x160c1ff68d853040e80b39c46305592260ccb520",
+            "event": "POSTED",
+            "sequence": 2
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "IDENTITY_BOUND",
+            "sequence": 5
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "CLAIMED",
+            "sequence": 6
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "DELIVERED",
+            "sequence": 8
+          },
+          {
+            "actor": "0xdf8a329f69bc2d0bf493633a5d0937644c3f05ce",
+            "event": "VERDICT_PENDING",
+            "sequence": 10
+          }
+        ],
+        "expected_repo_slug": "xiaoyu7799/bounty-board-v2-genlayer",
+        "hunter_github_id": 350620374,
+        "hunter_github_login": "xiaoyu7799",
+        "identity_repo": "xiaoyu7799/bounty-board-v2-genlayer",
+        "identity_sha": "027cf7b173cccf57c992d7d3063f75ab04904e0a",
+        "issuer": "0x160c1ff68d853040e80b39c46305592260ccb520",
+        "last_audit": null,
+        "min_reputation": 0,
+        "pending_verdict": {
+          "author_match": false,
+          "changed_lines": 0,
+          "commit_hit": false,
+          "completeness_score": 0,
+          "evidence_hash": "190b2322fca91419d08cbe9c4398d4ed1dedd36b53cbc072e60c06a690881171",
+          "file_count": 0,
+          "merge_sha": "",
+          "pr_number": 1,
+          "quality_score": 0,
+          "rationale": "PR is not in the bounty target repository.",
+          "round": 1,
+          "scope_fit_score": 0,
+          "verdict": "FAKE"
+        },
+        "requirements": "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior.",
+        "rounds": [
+          {
+            "author_match": false,
+            "changed_lines": 0,
+            "commit_hit": false,
+            "completeness_score": 0,
+            "evidence_hash": "190b2322fca91419d08cbe9c4398d4ed1dedd36b53cbc072e60c06a690881171",
+            "file_count": 0,
+            "merge_sha": "",
+            "pr_number": 1,
+            "quality_score": 0,
+            "rationale": "PR is not in the bounty target repository.",
+            "round": 1,
+            "scope_fit_score": 0,
+            "verdict": "FAKE"
+          }
+        ],
+        "settlement": null,
+        "stake": 1000,
+        "status": "VERDICT_PENDING"
+      }
+    }
+  },
+  "get_ledger_totals": {
+    "escrowed_wei": 4000000000000000000,
+    "escrowed_wei_recomputed": 4000000000000000000,
+    "total_received_wei": 5000000000000000000,
+    "total_withdrawn_wei": 1000000000000000000,
+    "withdrawable_wei": 0
+  },
+  "withdrawable": {
+    "deployer": {
+      "address": "0x366b8cca66322e87a498e59b922be18a8bd0d0e0",
+      "withdrawable_wei": 0
+    },
+    "issuer": {
+      "address": "0x160c1ff68d853040e80b39c46305592260ccb520",
+      "withdrawable_wei": 0
+    },
+    "stranger": {
+      "address": "0xdf8a329f69bc2d0bf493633a5d0937644c3f05ce",
+      "withdrawable_wei": 0
+    },
+    "hunter": {
+      "address": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+      "withdrawable_wei": 0
+    }
+  },
+  "contract_balance_wei": "4000000000000000000",
+  "conservation_verified": true
+}

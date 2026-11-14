@@ -157,7 +157,271 @@
         "withdrawn_wei": 1000000000000000000
       },
       "assertions_passed": true
+    },
+    {
+      "label": "bind-code-positive",
+      "role": "hunter",
+      "method": "bind_github_identity",
+      "args": [
+        "bb-r3-code",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "027cf7b173cccf57c992d7d3063f75ab04904e0a"
+      ],
+      "value_units": 0,
+      "hash": "0x7ed2f57bbce4a2f5467a31c956e1833414416c313b189bf91cc21a05169e4416",
+      "nonce": 5,
+      "submitted_at": "2026-11-14T02:01:00.741Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code",
+        "github_id": 350620374,
+        "wallet": "0x9ff7dda6f36d494bc6d66b56233d296073339650"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "claim-code-positive",
+      "role": "hunter",
+      "method": "claim_bounty",
+      "args": [
+        "bb-r3-code",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "027cf7b173cccf57c992d7d3063f75ab04904e0a"
+      ],
+      "value_units": 1000,
+      "hash": "0x4a6714beb5249e252d6688c66dc8e3f6e8bc4a481d40199611630bb2c6e60ab1",
+      "nonce": 6,
+      "submitted_at": "2026-11-14T02:01:48.837Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code",
+        "stake_units": 1000
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "bind-fake-positive",
+      "role": "hunter",
+      "method": "bind_github_identity",
+      "args": [
+        "bb-r3-fake",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "027cf7b173cccf57c992d7d3063f75ab04904e0a"
+      ],
+      "value_units": 0,
+      "hash": "0xf33f341bc1472563af1b77c1aae918b69949d85ce15e86e9770418c4f55b4103",
+      "nonce": 7,
+      "submitted_at": "2026-11-14T02:02:36.744Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake",
+        "github_id": 350620374,
+        "wallet": "0x9ff7dda6f36d494bc6d66b56233d296073339650"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "claim-fake-positive",
+      "role": "hunter",
+      "method": "claim_bounty",
+      "args": [
+        "bb-r3-fake",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "027cf7b173cccf57c992d7d3063f75ab04904e0a"
+      ],
+      "value_units": 1000,
+      "hash": "0x6d17f3a82951ccf36d097efc83ebda0506a367923c46673b11cdea6c55e36f75",
+      "nonce": 8,
+      "submitted_at": "2026-11-14T02:03:39.037Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake",
+        "stake_units": 1000
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "submit-code",
+      "role": "hunter",
+      "method": "submit_delivery",
+      "args": [
+        "bb-r3-code",
+        "https://github.com/xiaoyu7799/bounty-board-v2-genlayer/pull/6",
+        "",
+        "Exact amount and deadline helper implementation with automated boundary and adversarial tests."
+      ],
+      "value_units": 0,
+      "hash": "0x23fd5a06518bd9ff1571a73418a47c96b514f6be34c5b38acb8db1d124f8b495",
+      "nonce": 9,
+      "submitted_at": "2026-11-14T02:04:26.925Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "submit-fake",
+      "role": "hunter",
+      "method": "submit_delivery",
+      "args": [
+        "bb-r3-fake",
+        "https://github.com/xiaoyu7799/bounty-fake-delivery/pull/1",
+        "",
+        "Cross-repository submission tests the locked target repository gate."
+      ],
+      "value_units": 0,
+      "hash": "0xabeaa3f6feffaceb0a81ba7aad2187129b15613b631e63c2fa19ba9148818bd0",
+      "nonce": 10,
+      "submitted_at": "2026-11-14T02:05:14.828Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "evaluate-code",
+      "role": "stranger",
+      "method": "evaluate_delivery",
+      "args": [
+        "bb-r3-code"
+      ],
+      "value_units": 0,
+      "hash": "0x0c8fbc0ee6c3aecd67a69d16aa8323d78a2eff38238c9bf16b826b86f3efb1b1",
+      "nonce": 4,
+      "submitted_at": "2026-11-14T02:06:02.086Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code",
+        "verdict": "ACCEPT"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "evaluate-fake",
+      "role": "stranger",
+      "method": "evaluate_delivery",
+      "args": [
+        "bb-r3-fake"
+      ],
+      "value_units": 0,
+      "hash": "0xaee3e6c4edf58d109ba96338c3b590df0b51abb10b3b61f5dba98b09fb3264bb",
+      "nonce": 5,
+      "submitted_at": "2026-11-14T02:07:05.495Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake",
+        "verdict": "FAKE"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "execute-before-window-blocked",
+      "role": "issuer",
+      "method": "execute_verdict",
+      "args": [
+        "bb-r3-code"
+      ],
+      "value_units": 0,
+      "hash": "0x35e90ac049d1551909a5b1e77c4c0f38e6562d39384f4330848bcb976bbb94ee",
+      "nonce": 5,
+      "submitted_at": "2026-11-14T02:09:40.880Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "ERROR",
+      "assertions_passed": true,
+      "expected_error": "CHALLENGE_WINDOW_OPEN"
+    },
+    {
+      "label": "challenge-code",
+      "role": "hunter",
+      "method": "challenge_verdict",
+      "args": [
+        "bb-r3-code",
+        "https://github.com/xiaoyu7799/bounty-board-v2-genlayer/pull/6",
+        "Reassess whether the immutable helpers and tests cover every requested deadline boundary and monetary precision requirement.",
+        "REJECT"
+      ],
+      "value_units": 0,
+      "hash": "0x9c62e9a1daa1491972cdceca6bfffa348696a6c86e57c879284d0e7a8da645f4",
+      "nonce": 11,
+      "submitted_at": "2026-11-14T02:10:29.797Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "execute-pending-challenge-blocked",
+      "role": "issuer",
+      "method": "execute_verdict",
+      "args": [
+        "bb-r3-code"
+      ],
+      "value_units": 0,
+      "hash": "0xb0a802e47762cb53c3e3507d1187b3b1435dab90beecc39eb31c851e471fb8f2",
+      "nonce": 6,
+      "submitted_at": "2026-11-14T02:11:17.935Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "ERROR",
+      "assertions_passed": true,
+      "expected_error": "PENDING_CHALLENGE_BLOCKS_EXECUTION"
+    },
+    {
+      "label": "resolve-code-by-stranger",
+      "role": "stranger",
+      "method": "resolve_challenge",
+      "args": [
+        "bb-r3-code"
+      ],
+      "value_units": 0,
+      "hash": "0x3737d204e565204fb930e83b9004d32fabb2b2724b173feb62c5811980325015",
+      "nonce": 6,
+      "submitted_at": "2026-11-14T02:12:06.262Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code",
+        "verdict": "ACCEPT"
+      },
+      "assertions_passed": true
     }
   ],
-  "updated_at": "2026-11-14T01:54:00.920Z"
+  "updated_at": "2026-11-14T02:16:04.641345+00:00"
 }

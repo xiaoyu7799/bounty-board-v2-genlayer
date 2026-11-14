@@ -1,5 +1,5 @@
 // Revised-version Studionet acceptance. Recovery keys remain outside the repository.
-// BB_RECOVERY_FILE=/absolute/private.json node scripts/acceptance.mjs deploy|status|fund|call|read
+// BB_RECOVERY_FILE=/absolute/private.json node scripts/acceptance.mjs deploy|status|fund|call|step|read
 // call additionally takes an absolute JSON request path: {label,role,method,args,value_units}.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -123,6 +123,7 @@ if (command === 'deploy') {
     } catch { /* error payloads remain in the complete receipt */ }
     fs.writeFileSync(directory + '/' + tx.hash + '.json', JSON.stringify(receipt, null, 2) + '\n');
     save();
+    rawResult += String(leader?.genvm_result?.stderr || '');
     if (request.expected_error) {
       if (summary.leader_execution === 'SUCCESS' || !rawResult.includes(request.expected_error)) {
         throw Error('EXPECTED_EXECUTION_ERROR_NOT_OBSERVED:' + request.expected_error);
