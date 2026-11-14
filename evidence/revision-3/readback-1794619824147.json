@@ -1,0 +1,105 @@
+{
+  "contract": "0xb783CD72882e4403aC236237Ab231cfED7172f49",
+  "source_sha256": "c12961d63d460d688df8c58470befd19b46c7254cf3bd8e64bffc1a87256181b",
+  "code_matches_source": true,
+  "read_at": "2026-11-14T01:30:06.509Z",
+  "get_all_bounties": {
+    "bounties": {
+      "bb-r3-code": {
+        "amount": 1000,
+        "bounty_id": "bb-r3-code",
+        "challenge": null,
+        "challenge_count": 0,
+        "claimed_by": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+        "contradictions": [],
+        "delivery": null,
+        "events": [
+          {
+            "actor": "0x160c1ff68d853040e80b39c46305592260ccb520",
+            "event": "POSTED",
+            "sequence": 1
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "CLAIMED",
+            "sequence": 3
+          }
+        ],
+        "expected_repo_slug": "xiaoyu7799/bounty-board-v2-genlayer",
+        "hunter_github_id": 350620374,
+        "hunter_github_login": "xiaoyu7799",
+        "identity_repo": "xiaoyu7799/bounty-board-v2-genlayer",
+        "identity_sha": "b0e4eef560f5b8d802cc5dcd58cb079d456a4f50",
+        "issuer": "0x160c1ff68d853040e80b39c46305592260ccb520",
+        "last_audit": null,
+        "min_reputation": 0,
+        "pending_verdict": null,
+        "requirements": "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior.",
+        "rounds": [],
+        "settlement": null,
+        "stake": 1000,
+        "status": "CLAIMED"
+      },
+      "bb-r3-fake": {
+        "amount": 1000,
+        "bounty_id": "bb-r3-fake",
+        "challenge": null,
+        "challenge_count": 0,
+        "claimed_by": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+        "contradictions": [],
+        "delivery": null,
+        "events": [
+          {
+            "actor": "0x160c1ff68d853040e80b39c46305592260ccb520",
+            "event": "POSTED",
+            "sequence": 2
+          },
+          {
+            "actor": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+            "event": "CLAIMED",
+            "sequence": 4
+          }
+        ],
+        "expected_repo_slug": "xiaoyu7799/bounty-board-v2-genlayer",
+        "hunter_github_id": 350620374,
+        "hunter_github_login": "xiaoyu7799",
+        "identity_repo": "xiaoyu7799/bounty-board-v2-genlayer",
+        "identity_sha": "b0e4eef560f5b8d802cc5dcd58cb079d456a4f50",
+        "issuer": "0x160c1ff68d853040e80b39c46305592260ccb520",
+        "last_audit": null,
+        "min_reputation": 0,
+        "pending_verdict": null,
+        "requirements": "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior.",
+        "rounds": [],
+        "settlement": null,
+        "stake": 1000,
+        "status": "CLAIMED"
+      }
+    }
+  },
+  "get_ledger_totals": {
+    "escrowed_wei": 4000000000000000000,
+    "escrowed_wei_recomputed": 4000000000000000000,
+    "total_received_wei": 4999000000000000000,
+    "total_withdrawn_wei": 0,
+    "withdrawable_wei": 999000000000000000
+  },
+  "withdrawable": {
+    "deployer": {
+      "address": "0x366b8cca66322e87a498e59b922be18a8bd0d0e0",
+      "withdrawable_wei": 0
+    },
+    "hunter": {
+      "address": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+      "withdrawable_wei": 0
+    },
+    "issuer": {
+      "address": "0x160c1ff68d853040e80b39c46305592260ccb520",
+      "withdrawable_wei": 0
+    },
+    "stranger": {
+      "address": "0xdf8a329f69bc2d0bf493633a5d0937644c3f05ce",
+      "withdrawable_wei": 999000000000000000
+    }
+  }
+}

@@ -22,10 +22,12 @@ test_identity_theft_refunds_and_cannot_claim (test_bounty_board.BountyBoardTest.
 test_immutable_code_in_prompt_and_manifest_hash (test_bounty_board.BountyBoardTest.test_immutable_code_in_prompt_and_manifest_hash) ... ok
 test_mirror_disagreement_is_retryable_not_fake (test_bounty_board.BountyBoardTest.test_mirror_disagreement_is_retryable_not_fake) ... ok
 test_missing_immutable_code_is_retryable (test_bounty_board.BountyBoardTest.test_missing_immutable_code_is_retryable) ... ok
+test_negative_identity_is_validatable_return_not_nondeterministic_raise (test_bounty_board.BountyBoardTest.test_negative_identity_is_validatable_return_not_nondeterministic_raise) ... ok
 test_nonzero_window_boundary_and_permissionless_settlement (test_bounty_board.BountyBoardTest.test_nonzero_window_boundary_and_permissionless_settlement) ... ok
 test_numeric_github_identity_cannot_be_replaced_by_same_login (test_bounty_board.BountyBoardTest.test_numeric_github_identity_cannot_be_replaced_by_same_login) ... ok
 test_oversized_code_never_scores_or_writes_verdict (test_bounty_board.BountyBoardTest.test_oversized_code_never_scores_or_writes_verdict) ... ok
 test_partial_flow (test_bounty_board.BountyBoardTest.test_partial_flow) ... ok
+test_payable_claim_never_calls_network_or_model (test_bounty_board.BountyBoardTest.test_payable_claim_never_calls_network_or_model) ... ok
 test_prompt_injection_in_note_is_data_not_instruction (test_bounty_board.BountyBoardTest.test_prompt_injection_in_note_is_data_not_instruction) ... ok
 test_reject_flow_reputation_floor (test_bounty_board.BountyBoardTest.test_reject_flow_reputation_floor) ... ok
 test_repository_identity_proof_accepts_owner_default_branch (test_bounty_board.BountyBoardTest.test_repository_identity_proof_accepts_owner_default_branch) ... ok
@@ -34,6 +36,8 @@ test_repository_identity_rejects_wrong_owner_and_wallet (test_bounty_board.Bount
 test_sender_binding (test_bounty_board.BountyBoardTest.test_sender_binding) ... ok
 test_sha256_vectors (test_bounty_board.BountyBoardTest.test_sha256_vectors) ... ok
 test_stake_clamp (test_bounty_board.BountyBoardTest.test_stake_clamp) ... ok
+test_transient_identity_api_error_is_consensus_data_with_refund (test_bounty_board.BountyBoardTest.test_transient_identity_api_error_is_consensus_data_with_refund) ... ok
+test_unbound_payable_claim_refunds_without_external_calls (test_bounty_board.BountyBoardTest.test_unbound_payable_claim_refunds_without_external_calls) ... ok
 test_unexpected_value_on_non_payable_is_credited_back (test_bounty_board.BountyBoardTest.test_unexpected_value_on_non_payable_is_credited_back) ... ok
 test_validator_rejects_changed_code_bytes (test_bounty_board.BountyBoardTest.test_validator_rejects_changed_code_bytes) ... ok
 test_validator_score_spread_rejects (test_bounty_board.BountyBoardTest.test_validator_score_spread_rejects) ... ok
@@ -41,6 +45,6 @@ test_validator_tier_mismatch_rejects (test_bounty_board.BountyBoardTest.test_val
 test_verdict_derivation (test_bounty_board.BountyBoardTest.test_verdict_derivation) ... ok
 
 ----------------------------------------------------------------------
-Ran 36 tests in 0.098s
+Ran 40 tests in 0.129s
 
 OK

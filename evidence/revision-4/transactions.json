@@ -1,0 +1,27 @@
+{
+  "network": "Stable Studionet",
+  "chain_id": 61999,
+  "contract": "0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1",
+  "accounts": {
+    "deployer": "0x366b8Cca66322E87a498E59B922be18A8bD0d0E0",
+    "issuer": "0x160c1ff68d853040e80b39c46305592260cCb520",
+    "hunter": "0x9ff7dDA6F36D494bc6d66B56233d296073339650",
+    "stranger": "0xdf8a329f69Bc2d0Bf493633a5d0937644C3f05ce"
+  },
+  "transactions": [
+    {
+      "label": "deploy-r4",
+      "role": "deployer",
+      "method": "deploy",
+      "args": [],
+      "value_units": 0,
+      "hash": "0x0aef16ef7bd0a130b12599362441ef999053268133d8f4cf9e77ee15dfe8e8f5",
+      "nonce": 1,
+      "submitted_at": "2026-11-14T01:40:49.559Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS"
+    }
+  ],
+  "updated_at": "2026-11-14T01:43:00.794Z"
+}

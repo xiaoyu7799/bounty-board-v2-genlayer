@@ -1,0 +1,17 @@
+{
+  "url": "https://xiaoyu7799.github.io/bounty-board-v2-genlayer/",
+  "mode": "real cloud browser, real Studionet RPC",
+  "checks": {
+    "finalized_readbacks_visible": true,
+    "temporary_account_label_visible": true,
+    "faucet_funded_displayed_address": true,
+    "disconnect_returned_connect_buttons": true,
+    "language_switch": true
+  },
+  "temporary_account": "0x314EFdB2d4cBa381530D2c6F46C475B43c311f65",
+  "balance_wei_independently_read": "20000000000000000000",
+  "injected_wallet_real_signature_tested": false,
+  "payable_browser_write_tested": false,
+  "note": "Local Chromium launch and local preview restrictions are retained separately; these checks exercised the already-served read-only Pages build.",
+  "observed_on": "2026-11-14"
+}

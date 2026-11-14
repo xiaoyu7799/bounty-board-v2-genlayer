@@ -28,3 +28,12 @@
 - Browser smoke testing in this environment was blocked before page launch by
   Chromium's process singleton socket permission failure. Module-level wallet
   tests and the production bundle build were executed separately.
+
+- Revision 3 failed its live negative identity test: transaction
+  `0x5b6ec000668a673b41544500ddd8318c1b266dde01a3a11865ed5a08448cea35`
+  finalized with MAJORITY_DISAGREE/ERROR. Its payable value of 1 testnet GEN
+  remained outside the contract's recorded ledger. The original receipt, code
+  hash, ledger readback and observed balance discrepancy are preserved under
+  `evidence/revision-3/`. This version must not be used for new claims. The next
+  revision moves GitHub validation to a zero-value binding transaction and keeps
+  payable claims deterministic; this does not repair the old contract's ledger.

@@ -5,9 +5,10 @@ Website: https://xiaoyu7799.github.io/bounty-board-v2-genlayer/
 A GitHub bounty market with real testnet GEN escrow, independent semantic
 adjudication, challenges and pull payments on Stable Studionet (61999).
 
-The revised source is deployed at `0xb783CD72882e4403aC236237Ab231cfED7172f49`
+The revised source is deployed at `0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1`
 with a FINALIZED/SUCCESS receipt and independently matched source hash.
-See `evidence/revision-3/`. Full identity, challenge and settlement acceptance
+See `evidence/revision-4/`. Revision 3 failed its negative identity test;
+its failure and ledger discrepancy remain under `evidence/revision-3/`. Full identity, challenge and settlement acceptance
 is still incomplete. The published website currently serves the historical
 version; the revised configuration stays read-only until live acceptance.
 Historical receipts in the root `evidence/` directory belong to
@@ -19,13 +20,15 @@ Historical receipts in the root `evidence/` directory belong to
 2. Select the wallet that will receive payment. Before claiming, put the
    following whitespace-separated token in the GitHub profile bio:
    `bb:61999:<lowercase-contract-address>:<bounty-id>:<lowercase-wallet-address>`.
-   Claim with the GitHub login and exact stake (10%, clamped to 1–10 GEN).
+   Bind the identity without value using `bind_github_identity`, wait for
+   FINALIZED/SUCCESS, then claim with the same GitHub login and exact stake (10%, clamped to 1–10 GEN).
    Alternatively, commit the exact token as the entire file
    `identity/<lowercase-wallet-address>/<bounty-id>.txt` in a repository owned
    by that GitHub login. Pass its repository slug and immutable commit SHA to
    `claim_bounty`; the commit must already be an ancestor of the repository's
    default branch. A fork-only or unmerged branch commit cannot authorize a claim.
-   Validators verify the profile or repository proof independently.
+   Validators verify the profile or repository proof independently during binding.
+   Payable `claim_bounty` reads the confirmed binding only and makes no external calls.
    The verified numeric GitHub ID
    and login are bound to the claimant wallet; a matching name alone is insufficient.
 3. Submit a merged PR in the target repository. Its author must match that

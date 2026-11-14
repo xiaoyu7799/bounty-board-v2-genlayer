@@ -188,6 +188,7 @@ class BountyBoard(gl.Contract):
     def __init__(self):
         self.state_json = _pack({
             'bounties': {},
+            'identity_bindings': {},
             'hunters': {},
             'withdrawable': {},
             'total_received_wei': 0,
@@ -261,7 +262,7 @@ class BountyBoard(gl.Contract):
                          identity_repo: str, identity_sha: str) -> int:
         token = ('bb:61999:' + str(gl.message.contract_address).lower() + ':' +
                  bounty_id + ':' + sender)
-        def fetch_identity():
+        def identity_facts():
             if identity_repo or identity_sha:
                 # A commit available through GitHub's shared fork object store
                 # is insufficient: it must be an ancestor of the owner's default branch.
@@ -294,8 +295,24 @@ class BountyBoard(gl.Contract):
                 uid = user.get('id')
             _need(type(uid) is int and uid > 0, 'INVALID_GITHUB_ID')
             return uid
-        return gl.vm.run_nondet_unsafe(fetch_identity,
+        def fetch_identity():
+            # Consensus compares ordinary data for both positive and negative proofs.
+            # A raised nondeterministic leader result cannot be validated as Return.
+            try:
+                return {'ok': True, 'github_id': identity_facts(), 'reason': ''}
+            except Exception as exc:
+                reason = str(exc)
+                known = ('INVALID_IDENTITY_SHA', 'INVALID_IDENTITY_REPO', 'IDENTITY_REPO_NOT_FOUND',
+                         'IDENTITY_OWNER_MISMATCH', 'IDENTITY_COMMIT_NOT_ON_DEFAULT_BRANCH',
+                         'GITHUB_WALLET_PROOF_MISSING', 'GITHUB_IDENTITY_NOT_FOUND',
+                         'IDENTITY_LOGIN_MISMATCH', 'INVALID_GITHUB_ID')
+                if reason not in known:
+                    reason = 'IDENTITY_PROOF_UNAVAILABLE_RETRY'
+                return {'ok': False, 'github_id': 0, 'reason': reason}
+        proof = gl.vm.run_nondet_unsafe(fetch_identity,
             lambda result: isinstance(result, gl.vm.Return) and result.calldata == fetch_identity())
+        _need(proof['ok'], proof['reason'])
+        return proof['github_id']
 
     # ------------------------------------------------------------------
     # Two-stage adjudication: deterministic GitHub API gate first, then
@@ -612,6 +629,30 @@ class BountyBoard(gl.Contract):
         self._save(s)
         return _pack({'accepted': True, 'bounty_id': bounty_id})
 
+    @gl.public.write
+    def bind_github_identity(self, bounty_id: str, hunter_github_login: str,
+                             identity_repo: str = '', identity_sha: str = '') -> str:
+        s = self._load()
+        sender = self._sender()
+        if self._refund_unexpected_value(s, sender, int(gl.message.value)):
+            return _pack({'accepted': False, 'reason': 'value_not_accepted'})
+        try:
+            bounty = self._bounty(s, bounty_id)
+            _need(bounty['status'] == 'OPEN', 'INVALID_STATE')
+            _text(hunter_github_login, 39)
+            _need(all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-'
+                      for c in hunter_github_login), 'INVALID_GITHUB_LOGIN')
+            _need(len(identity_repo) <= 100, 'INVALID_IDENTITY_REPO')
+            github_id = self._verify_identity(bounty_id, hunter_github_login, sender, identity_repo, identity_sha)
+        except Exception as exc:
+            return _pack({'accepted': False, 'reason': str(exc)})
+        s['identity_bindings'][bounty_id + '|' + sender] = {
+            'github_id': github_id, 'login': hunter_github_login.lower(),
+            'repo': identity_repo, 'sha': identity_sha.lower()}
+        self._event(s, bounty, 'IDENTITY_BOUND')
+        self._save(s)
+        return _pack({'accepted': True, 'bounty_id': bounty_id, 'github_id': github_id, 'wallet': sender})
+
     @gl.public.write.payable
     def claim_bounty(self, bounty_id: str, hunter_github_login: str,
                      identity_repo: str = '', identity_sha: str = '') -> str:
@@ -632,7 +673,12 @@ class BountyBoard(gl.Contract):
             _need(value_wei == stake * WEI_PER_UNIT, 'STAKE_VALUE_MISMATCH')
             _need(all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_' for c in bounty_id),
                   'INVALID_IDENTITY_BOUNTY_ID')
-            github_id = self._verify_identity(bounty_id, hunter_github_login, sender, identity_repo, identity_sha)
+            binding = s['identity_bindings'].get(bounty_id + '|' + sender)
+            _need(binding is not None, 'IDENTITY_BINDING_MISSING')
+            _need(binding['login'] == hunter_github_login.lower() and
+                  binding['repo'] == identity_repo and binding['sha'] == identity_sha.lower(),
+                  'IDENTITY_BINDING_MISMATCH')
+            github_id = binding['github_id']
         except Exception as exc:
             return self._reject_with_refund(s, sender, value_wei, str(exc))
         bounty['status'] = 'CLAIMED'
