@@ -40,3 +40,10 @@ export async function fundTemporary({ wallet, rpc, currentWallet }) {
 }
 
 export { genToUnits } from './amounts.js';
+
+export async function bindThenClaim({ wallet, currentWallet, runWrite, args, value }) {
+  const bound = await runWrite('Bind GitHub identity', 'bind_github_identity', args, 0n);
+  if (!bound) return null;
+  if (currentWallet() !== wallet) throw Error('DISPLAY_ACCOUNT_CHANGED');
+  return runWrite('Claim bounty', 'claim_bounty', args, value);
+}

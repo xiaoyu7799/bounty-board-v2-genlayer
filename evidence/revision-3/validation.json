@@ -23,9 +23,8 @@
     "live browser signing"
   ],
   "uncertain_transaction": {
-    "label": "reject-unmerged-identity",
     "hash": "0x21baad733fb08e2d9ecdd9a2bfff7f6364145e90789a98d502e5a4b194931759",
-    "observation": "Submission timed out; receipt read also timed out. Do not resubmit without checking hash and nonce."
+    "resolution": "Initial timed-out broadcast was absent and nonce remained zero. The same transaction was submitted after the proof commit merged; its successful claim is finalized and recorded."
   },
   "local_tests": {
     "python": 36,
@@ -33,5 +32,7 @@
     "build": "passed",
     "browser": "blocked before launch"
   },
-  "historical_evidence_preserved": true
+  "historical_evidence_preserved": true,
+  "withdrawal_safety_verified": false,
+  "failed_acceptance": "Payable identity consensus error retained 1 testnet GEN outside the ledger; see identity-failure.json"
 }

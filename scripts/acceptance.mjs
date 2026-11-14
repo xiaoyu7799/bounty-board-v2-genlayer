@@ -17,7 +17,7 @@ try { fs.mkdirSync(lock, { mode: 0o700 }); }
 catch { throw Error('RECOVERY_FILE_IN_USE_OR_STALE_LOCK'); }
 process.on('exit', () => { try { fs.rmdirSync(lock); } catch {} });
 const state = JSON.parse(fs.readFileSync(checkpoint, 'utf8'));
-const directory = 'evidence/revision-3';
+const directory = 'evidence/revision-' + (state.revision || 3);
 fs.mkdirSync(directory, { recursive: true });
 const save = () => {
   const temporary = checkpoint + '.tmp';
@@ -72,9 +72,9 @@ if (command === 'deploy') {
   state.source_sha256 = sha; save();
   const data = abi.transactions.serialize([new TextEncoder().encode(code),
     abi.calldata.encode(abi.calldata.makeCalldataObject(undefined, [], {})), false]);
-  await send('deploy-r3', 'deployer', 'deploy', [], 0, '0x' + '00'.repeat(20), data);
+  await send('deploy-r' + (state.revision || 3), 'deployer', 'deploy', [], 0, '0x' + '00'.repeat(20), data);
 } else if (command === 'status') {
-  for (const tx of state.transactions.filter(tx => tx.status !== 'FINALIZED')) {
+  for (const tx of state.transactions.filter(tx => !['FINALIZED', 'NOT_BROADCAST'].includes(tx.status))) {
     const receipt = await rpc('eth_getTransactionByHash', [tx.hash]);
     if (!receipt) { console.log(JSON.stringify({ label: tx.label, status: 'NOT_OBSERVED' })); continue; }
     const summary = receiptSummary(receipt); tx.status = summary.status;
@@ -91,6 +91,55 @@ if (command === 'deploy') {
       }
     }
     save(); console.log(JSON.stringify({ label: tx.label, ...summary }));
+  }
+} else if (command === 'step') {
+  if (!state.contract) throw Error('DEPLOYMENT_NOT_FINALIZED');
+  for (const file of process.argv.slice(3)) {
+    const request = JSON.parse(fs.readFileSync(file, 'utf8'));
+    let tx = state.transactions.find(item => item.label === request.label);
+    if (!tx) {
+      await send(request.label, request.role, request.method, request.args || [], request.value_units || 0,
+        state.contract, encoded(request.method, request.args || []));
+      tx = state.transactions.find(item => item.label === request.label);
+    }
+    const deadline = Date.now() + 12 * 60 * 1000;
+    let receipt;
+    while (Date.now() < deadline) {
+      receipt = await rpc('eth_getTransactionByHash', [tx.hash]);
+      if (receipt?.status === 'FINALIZED') break;
+      console.log(JSON.stringify({ label: tx.label, status: receipt?.status || 'NOT_OBSERVED' }));
+      await new Promise(resolve => setTimeout(resolve, 8000));
+    }
+    if (receipt?.status !== 'FINALIZED') throw Error('FINALITY_TIMEOUT_CHECK_EXISTING_HASH:' + tx.hash);
+    const summary = receiptSummary(receipt);
+    tx.status = summary.status; tx.result_name = summary.result_name; tx.execution = summary.leader_execution;
+    const leaders = receipt.consensus_data?.leader_receipt;
+    const leader = Array.isArray(leaders) ? leaders.find(item => item.mode === 'leader') || leaders[0] : leaders;
+    let rawResult = '';
+    try {
+      const bytes = Buffer.from(leader.result, 'base64');
+      rawResult = bytes.toString('utf8');
+      tx.return_value = JSON.parse(abi.calldata.decode(bytes.slice(1)));
+    } catch { /* error payloads remain in the complete receipt */ }
+    fs.writeFileSync(directory + '/' + tx.hash + '.json', JSON.stringify(receipt, null, 2) + '\n');
+    save();
+    if (request.expected_error) {
+      if (summary.leader_execution === 'SUCCESS' || !rawResult.includes(request.expected_error)) {
+        throw Error('EXPECTED_EXECUTION_ERROR_NOT_OBSERVED:' + request.expected_error);
+      }
+    } else {
+      if (summary.result_name !== 'MAJORITY_AGREE' || summary.leader_execution !== 'SUCCESS') {
+        throw Error('STEP_EXECUTION_FAILED:' + tx.label);
+      }
+      if (request.expected_rejection) {
+        if (tx.return_value?.accepted !== false || !String(tx.return_value?.reason).includes(request.expected_rejection)) {
+          throw Error('EXPECTED_REJECTION_NOT_OBSERVED:' + request.expected_rejection);
+        }
+      } else if (tx.return_value?.accepted !== true) throw Error('STEP_REJECTED:' + JSON.stringify(tx.return_value));
+    }
+    tx.assertions_passed = true; save();
+    console.log(JSON.stringify({ label: tx.label, hash: tx.hash, status: tx.status,
+      execution: tx.execution, returned: tx.return_value, assertions_passed: true }));
   }
 } else if (command === 'fund') {
   for (const role of ['issuer', 'hunter', 'stranger']) {
@@ -118,7 +167,26 @@ if (command === 'deploy') {
     if (typeof hex !== 'string') throw Error('INVALID_READBACK');
     snapshot[method] = JSON.parse(abi.calldata.decode(Buffer.from(hex.replace(/^0x/, ''), 'hex')));
   }
+  snapshot.withdrawable = {};
+  await Promise.all(Object.entries(state.accounts).map(async ([role, account]) => {
+    const result = await rpc('gen_call', [{ type: 'read', to: state.contract,
+      from: '0x' + '00'.repeat(20), data: encoded('get_withdrawable', [account.address]),
+      transaction_hash_variant: 'latest-final' }]);
+    const hex = typeof result === 'string' ? result : result?.data;
+    snapshot.withdrawable[role] = JSON.parse(abi.calldata.decode(Buffer.from(hex.replace(/^0x/, ''), 'hex')));
+  }));
+  snapshot.contract_balance_wei = BigInt(await rpc('eth_getBalance', [state.contract, 'latest'])).toString();
+  const totals = snapshot.get_ledger_totals;
+  const received = BigInt(totals.total_received_wei);
+  const withdrawn = BigInt(totals.total_withdrawn_wei);
+  snapshot.conservation_verified = received === withdrawn + BigInt(totals.withdrawable_wei) + BigInt(totals.escrowed_wei)
+    && BigInt(totals.escrowed_wei) === BigInt(totals.escrowed_wei_recomputed)
+    && BigInt(snapshot.contract_balance_wei) === received - withdrawn;
   state.snapshot = snapshot; save();
+  if (fs.existsSync(directory + '/readback.json') && !fs.existsSync(directory + '/deployment-readback.json')) {
+    fs.copyFileSync(directory + '/readback.json', directory + '/deployment-readback.json');
+  }
+  fs.writeFileSync(directory + '/readback-' + Date.now() + '.json', JSON.stringify(snapshot, null, 2) + '\n');
   fs.writeFileSync(directory + '/readback.json', JSON.stringify(snapshot, null, 2) + '\n');
   console.log(JSON.stringify(snapshot));
 } else throw Error('UNKNOWN_COMMAND');

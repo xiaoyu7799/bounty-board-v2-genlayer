@@ -252,6 +252,7 @@ class BountyBoardTest(unittest.TestCase):
 
     def claim(self, bounty_id='bb-0001', sender=HUNTER, login='xiaoyu7799', value=None):
         stake = self.mod._stake_for(10000)
+        call(self.c, sender, 0, self.c.bind_github_identity, bounty_id, login)
         return call(self.c, sender, stake if value is None else value,
                     self.c.claim_bounty, bounty_id, login)
 
@@ -598,7 +599,7 @@ class BountyBoardTest(unittest.TestCase):
         runtime.identity_wallet = STRANGER
         out = json.loads(self.claim())
         self.assertFalse(out['accepted'])
-        self.assertIn('PROOF_MISSING', out['reason'])
+        self.assertEqual(out['reason'], 'IDENTITY_BINDING_MISSING')
         self.assertEqual(self.bounty()['status'], 'OPEN')
         self.assertEqual(self.withdrawable(HUNTER), 1000)
 
@@ -681,6 +682,8 @@ class BountyBoardTest(unittest.TestCase):
 
     def test_repository_identity_proof_accepts_owner_default_branch(self):
         self.post()
+        binding = json.loads(call(self.c, HUNTER, 0, self.c.bind_github_identity,
+            'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
         out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
             'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
         self.assertTrue(out['accepted'])
@@ -689,10 +692,12 @@ class BountyBoardTest(unittest.TestCase):
 
     def test_repository_identity_rejects_unmerged_fork_commit(self):
         self.post(); runtime.identity_on_branch = False
+        binding = json.loads(call(self.c, HUNTER, 0, self.c.bind_github_identity,
+            'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
         out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
             'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
         self.assertFalse(out['accepted'])
-        self.assertIn('NOT_ON_DEFAULT_BRANCH', out['reason'])
+        self.assertIn('NOT_ON_DEFAULT_BRANCH', binding['reason'])
         self.assertEqual(self.withdrawable(HUNTER), 1000)
 
     def test_repository_identity_rejects_wrong_owner_and_wallet(self):
@@ -700,6 +705,9 @@ class BountyBoardTest(unittest.TestCase):
             self.setUp(); self.post()
             if kind == 'owner': runtime.identity_owner = 'attacker'
             else: runtime.identity_wallet = STRANGER
+            binding = json.loads(call(self.c, HUNTER, 0, self.c.bind_github_identity,
+                'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
+            self.assertFalse(binding['accepted'])
             out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty,
                 'bb-0001', 'xiaoyu7799', SLUG, 'c' * 40))
             self.assertFalse(out['accepted'])
@@ -709,6 +717,52 @@ class BountyBoardTest(unittest.TestCase):
         out = json.loads(self.post(bounty_id='../unsafe'))
         self.assertFalse(out['accepted'])
         self.assertEqual(self.state()['bounties'], {})
+
+    def test_negative_identity_is_validatable_return_not_nondeterministic_raise(self):
+        self.post(); runtime.identity_wallet = STRANGER
+        observed = []
+        def compare_negative(leader, validator):
+            value = leader()
+            observed.append(value)
+            self.assertFalse(value['ok'])
+            self.assertEqual(value['reason'], 'GITHUB_WALLET_PROOF_MISSING')
+            self.assertTrue(validator(Return(copy.deepcopy(value))))
+            return value
+        runtime.run = compare_negative
+        out = json.loads(self.claim())
+        self.assertFalse(out['accepted'])
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(self.withdrawable(HUNTER), 1000)
+
+    def test_transient_identity_api_error_is_consensus_data_with_refund(self):
+        self.post()
+        runtime.http_fail_urls.add('https://api.github.com/users/xiaoyu7799')
+        out = json.loads(self.claim())
+        self.assertFalse(out['accepted'])
+        self.assertEqual(out['reason'], 'IDENTITY_BINDING_MISSING')
+        self.assertEqual(self.bounty()['status'], 'OPEN')
+        self.assertEqual(self.withdrawable(HUNTER), 1000)
+
+    def test_payable_claim_never_calls_network_or_model(self):
+        self.post()
+        call(self.c, HUNTER, 0, self.c.bind_github_identity, 'bb-0001', 'xiaoyu7799')
+        def forbidden(*args, **kwargs):
+            raise AssertionError('PAYABLE_MUST_BE_DETERMINISTIC')
+        runtime.request = forbidden
+        runtime.run = forbidden
+        out = json.loads(call(self.c, HUNTER, 1000, self.c.claim_bounty, 'bb-0001', 'xiaoyu7799'))
+        self.assertTrue(out['accepted'])
+
+    def test_unbound_payable_claim_refunds_without_external_calls(self):
+        self.post()
+        def forbidden(*args, **kwargs):
+            raise AssertionError('PAYABLE_MUST_BE_DETERMINISTIC')
+        runtime.request = forbidden
+        runtime.run = forbidden
+        out = json.loads(call(self.c, STRANGER, 1000, self.c.claim_bounty, 'bb-0001', 'xiaoyu7799'))
+        self.assertFalse(out['accepted'])
+        self.assertEqual(out['reason'], 'IDENTITY_BINDING_MISSING')
+        self.assertEqual(self.withdrawable(STRANGER), 1000)
 
 
 if __name__ == '__main__':

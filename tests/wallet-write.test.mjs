@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { writeAsDisplayed, fundTemporary, genToUnits } from '../site/src/wallet-write.js';
+import { writeAsDisplayed, fundTemporary, genToUnits, bindThenClaim } from '../site/src/wallet-write.js';
 const address = '0x' + '22'.repeat(20);
 const other = '0x' + '33'.repeat(20);
 function setup(kind = 'temp') {
@@ -58,4 +58,21 @@ test('GEN input converts to exact contract units with range and precision checks
   for (const value of ['0', '0.999', '200.001', '1.0001', 'NaN', '1e2', '-1']) {
     assert.throws(() => genToUnits(value), /INVALID_GEN_AMOUNT/);
   }
+});
+
+test('claim binds without value before committing stake from the same display account', async () => {
+  const wallet = { address }; const calls = [];
+  await bindThenClaim({ wallet, currentWallet: () => wallet, args: ['b', 'user'], value: 1000n,
+    runWrite: async (...args) => { calls.push(args); return {}; } });
+  assert.equal(calls[0][1], 'bind_github_identity'); assert.equal(calls[0][3], 0n);
+  assert.equal(calls[1][1], 'claim_bounty'); assert.equal(calls[1][3], 1000n);
+});
+test('rejected binding or a changed display account prevents the payable step', async () => {
+  const wallet = { address }; let calls = 0;
+  await bindThenClaim({ wallet, currentWallet: () => wallet, args: [], value: 1000n,
+    runWrite: async () => { calls++; return null; } });
+  assert.equal(calls, 1); calls = 0;
+  await assert.rejects(bindThenClaim({ wallet, currentWallet: () => null, args: [], value: 1000n,
+    runWrite: async () => { calls++; return {}; } }), /DISPLAY_ACCOUNT_CHANGED/);
+  assert.equal(calls, 1);
 });

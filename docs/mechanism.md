@@ -9,7 +9,7 @@ remain unchanged.
 
 The API gate verifies locked repository, merged status, merge SHA, PR author
 login **and numeric ID**, bounty-ID commit, minimum code changes and merged tree
-membership. Identity is verified at claim through a wallet-, bounty-, network-
+membership. Identity is verified in a zero-value `bind_github_identity` transaction through a wallet-, bounty-, network-
 and contract-specific token in the GitHub user's public profile bio, or in
 `identity/<wallet>/<bounty>.txt` at a supplied immutable commit in an owned
 repository. Repository proofs verify `owner.id`, login and default-branch ancestry
@@ -34,7 +34,8 @@ its underlying code in the prompt is insufficient for semantic adjudication.
 
 | Transition | Caller | Constraint |
 |---|---|---|
-| OPEN → CLAIMED | hunter, not issuer | profile proof, exact stake, reputation |
+| Identity binding (OPEN) | prospective hunter | zero value; independently verified proof |
+| OPEN → CLAIMED | hunter, not issuer | confirmed binding, exact stake, reputation; no external calls |
 | CLAIMED → DELIVERED | hunter | valid PR URL and bounded note |
 | DELIVERED → VERDICT_PENDING | anyone | successful consensus, 24-hour deadline |
 | VERDICT_PENDING → challenged | hunter | before deadline, at most 2 challenges |
@@ -55,3 +56,14 @@ block consensus resolution, as documented in known limitations.
 Settlement updates credits exactly once and always pays the recorded hunter
 and issuer. Trigger callers cannot redirect funds. Contradiction witnesses
 append after settlement and never change payouts.
+
+## Identity rejection and value safety
+
+Both valid and invalid identity proofs return ordinary structured data from the
+nondeterministic step. Validators compare that data independently. Negative
+proofs are reported as rejected operations, rather than relying on validation
+of a raised leader result. Binding is non-payable; payable claims use only the
+confirmed binding. This separates GitHub availability and consensus from stake
+transfer. The browser waits for binding finality and checks the selected account
+again before claiming. A successful transaction with `accepted:false` is displayed
+as a rejected operation, with the transaction hash and reason.

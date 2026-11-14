@@ -1,0 +1,34 @@
+{
+  "contract": "0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1",
+  "source_sha256": "45bd6d75c17c80f7b4c4628199c1e630b617e456dd2c7316cad2b596d96c7d38",
+  "code_matches_source": true,
+  "read_at": "2026-11-14T01:42:43.293Z",
+  "get_all_bounties": {
+    "bounties": {}
+  },
+  "get_ledger_totals": {
+    "escrowed_wei": 0,
+    "escrowed_wei_recomputed": 0,
+    "total_received_wei": 0,
+    "total_withdrawn_wei": 0,
+    "withdrawable_wei": 0
+  },
+  "withdrawable": {
+    "deployer": {
+      "address": "0x366b8cca66322e87a498e59b922be18a8bd0d0e0",
+      "withdrawable_wei": 0
+    },
+    "stranger": {
+      "address": "0xdf8a329f69bc2d0bf493633a5d0937644c3f05ce",
+      "withdrawable_wei": 0
+    },
+    "issuer": {
+      "address": "0x160c1ff68d853040e80b39c46305592260ccb520",
+      "withdrawable_wei": 0
+    },
+    "hunter": {
+      "address": "0x9ff7dda6f36d494bc6d66b56233d296073339650",
+      "withdrawable_wei": 0
+    }
+  }
+}

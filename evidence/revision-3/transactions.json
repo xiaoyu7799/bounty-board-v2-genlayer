@@ -75,7 +75,7 @@
       "hash": "0x74cfb1c50d00214c4cc9e1288eb524a408d231afa8fd3e7cfb61197f4aa007aa",
       "nonce": 0,
       "submitted_at": "2026-11-13T15:09:32.276Z",
-      "status": "ACCEPTED",
+      "status": "FINALIZED",
       "result_name": "MAJORITY_AGREE",
       "execution": "SUCCESS"
     },
@@ -93,9 +93,107 @@
       "hash": "0x21baad733fb08e2d9ecdd9a2bfff7f6364145e90789a98d502e5a4b194931759",
       "nonce": 0,
       "submitted_at": "2026-11-13T15:11:06.751Z",
-      "status": "BROADCAST_PREPARED",
-      "broadcast_error": "The operation was aborted due to timeout"
+      "status": "NOT_BROADCAST",
+      "broadcast_error": "The operation was aborted due to timeout",
+      "resolution": "RPC transaction not found; account nonce remains 0. No value spent."
+    },
+    {
+      "label": "claim-bb-r3-code",
+      "role": "hunter",
+      "method": "claim_bounty",
+      "args": [
+        "bb-r3-code",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "b0e4eef560f5b8d802cc5dcd58cb079d456a4f50"
+      ],
+      "value_units": 1000,
+      "hash": "0x21baad733fb08e2d9ecdd9a2bfff7f6364145e90789a98d502e5a4b194931759",
+      "nonce": 0,
+      "submitted_at": "2026-11-14T01:26:33.843Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS"
+    },
+    {
+      "label": "claim-bb-r3-fake",
+      "role": "hunter",
+      "method": "claim_bounty",
+      "args": [
+        "bb-r3-fake",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "b0e4eef560f5b8d802cc5dcd58cb079d456a4f50"
+      ],
+      "value_units": 1000,
+      "hash": "0x6367c53ea9b353b33acad41d7c5dc60d2d368fc10e9dd4c41a7aafd59404ce17",
+      "nonce": 1,
+      "submitted_at": "2026-11-14T01:28:21.626Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS"
+    },
+    {
+      "label": "submit-code",
+      "role": "hunter",
+      "method": "submit_delivery",
+      "args": [
+        "bb-r3-code",
+        "https://github.com/xiaoyu7799/bounty-board-v2-genlayer/pull/6",
+        "",
+        "Exact amount and deadline helper implementation with automated boundary and adversarial tests."
+      ],
+      "value_units": 0,
+      "hash": "0xc57b9a77aecff1e5e8413bf6b9ba09ac062afbf65f8413d38247ff5647ef4c28",
+      "nonce": 2,
+      "submitted_at": "2026-11-14T01:31:18.197Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "release-for-identity-test",
+      "role": "issuer",
+      "method": "release_claim",
+      "args": [
+        "bb-r3-fake"
+      ],
+      "value_units": 0,
+      "hash": "0x5c12071f91cdbd6980e7dbe21619e3247925ca0740346586e71682f6cbdbd865",
+      "nonce": 2,
+      "submitted_at": "2026-11-14T01:31:59.499Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "steal-identity-rejected",
+      "role": "stranger",
+      "method": "claim_bounty",
+      "args": [
+        "bb-r3-fake",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "b0e4eef560f5b8d802cc5dcd58cb079d456a4f50"
+      ],
+      "value_units": 1000,
+      "hash": "0x5b6ec000668a673b41544500ddd8318c1b266dde01a3a11865ed5a08448cea35",
+      "nonce": 1,
+      "submitted_at": "2026-11-14T01:33:54.274Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_DISAGREE",
+      "execution": "ERROR"
     }
   ],
-  "updated_at": "2026-11-13T15:11:31.755Z"
+  "updated_at": "2026-11-14T01:37:48.205Z"
 }

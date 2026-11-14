@@ -1,6 +1,7 @@
+import { decodeWriteReturn } from './write-result.js';
 import { verdictActions } from './deadlines.js';
 import { stakeForUnits, formatWeiAsGen } from './amounts.js';
-import { writeAsDisplayed, fundTemporary, genToUnits } from './wallet-write.js';
+import { writeAsDisplayed, fundTemporary, genToUnits, bindThenClaim } from './wallet-write.js';
 // Bounty Board v2 — frontend.
 // Display rule: every displayed or exported value comes from a
 // FINALIZED get_* readback snapshot. Before a readback, fields show
@@ -173,6 +174,18 @@ async function runWrite(label, method, args, valueWei = 0n) {
     : leaders;
   if (receipt.result_name !== 'MAJORITY_AGREE' || leader?.execution_result !== 'SUCCESS') {
     setNotice(`${t(lang, 'txFailed')}: ${receipt.result_name}/${leader?.execution_result}`, 'error');
+    return null;
+  }
+  let operation;
+  try { operation = decodeWriteReturn(leader?.result); }
+  catch (error) {
+    setNotice(`${t(lang, 'txError')} (${error.message})`, 'error');
+    await refreshSnapshot();
+    return null;
+  }
+  if (!operation.accepted) {
+    setNotice(`${t(lang, 'txFailed')}: ${operation.reason}; ${String(hash)}`, 'error');
+    await refreshSnapshot();
     return null;
   }
   setNotice(`${t(lang, 'txFinalized')}: ${String(hash).slice(0, 18)}…`, 'ok');
@@ -511,8 +524,11 @@ function bindForms() {
       const identitySha = identityRepo ? window.prompt('Commit SHA already merged to the repository default branch. File path: identity/' + wallet.address + '/' + bountyId + '.txt; file must contain only the proof token.') : '';
       if (identitySha === null) return;
       const stake = stakeForUnits(bounty.amount);
-      await runWrite(t(lang, 'claim'), 'claim_bounty', [bountyId, login.trim().toLowerCase(), identityRepo.trim(), identitySha.trim()],
-        BigInt(stake) * APP_CONFIG.WEI_PER_UNIT);
+      try {
+        await bindThenClaim({ wallet, currentWallet: () => wallet, runWrite,
+          args: [bountyId, login.trim().toLowerCase(), identityRepo.trim(), identitySha.trim()],
+          value: BigInt(stake) * APP_CONFIG.WEI_PER_UNIT });
+      } catch (error) { setNotice(error.message, 'error'); }
     } else if (action === 'submit') {
       const prUrl = window.prompt(t(lang, 'prLink'));
       if (!prUrl) return;

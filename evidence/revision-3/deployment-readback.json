@@ -1,0 +1,16 @@
+{
+  "contract": "0xb783CD72882e4403aC236237Ab231cfED7172f49",
+  "source_sha256": "c12961d63d460d688df8c58470befd19b46c7254cf3bd8e64bffc1a87256181b",
+  "code_matches_source": true,
+  "read_at": "2026-11-13T15:06:22.018Z",
+  "get_all_bounties": {
+    "bounties": {}
+  },
+  "get_ledger_totals": {
+    "escrowed_wei": 0,
+    "escrowed_wei_recomputed": 0,
+    "total_received_wei": 0,
+    "total_withdrawn_wei": 0,
+    "withdrawable_wei": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "contract": "0xb783CD72882e4403aC236237Ab231cfED7172f49",
+  "observed_at": "2026-11-14T01:39:52.781Z",
+  "balance_wei": "5999000000000000000",
+  "accounted_wei": "4999000000000000000",
+  "unaccounted_wei": "1000000000000000000",
+  "cause": "Failed payable identity proof nondeterministic consensus",
+  "failed_transaction": "0x5b6ec000668a673b41544500ddd8318c1b266dde01a3a11865ed5a08448cea35",
+  "status": "FINALIZED",
+  "result_name": "MAJORITY_DISAGREE",
+  "execution": "ERROR"
+}
