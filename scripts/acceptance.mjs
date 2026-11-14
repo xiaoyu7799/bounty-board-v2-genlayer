@@ -175,6 +175,13 @@ if (command === 'deploy') {
     const hex = typeof result === 'string' ? result : result?.data;
     snapshot.withdrawable[role] = JSON.parse(abi.calldata.decode(Buffer.from(hex.replace(/^0x/, ''), 'hex')));
   }));
+  snapshot.contract_balance_wei = BigInt(await rpc('eth_getBalance', [state.contract, 'latest'])).toString();
+  const totals = snapshot.get_ledger_totals;
+  const received = BigInt(totals.total_received_wei);
+  const withdrawn = BigInt(totals.total_withdrawn_wei);
+  snapshot.conservation_verified = received === withdrawn + BigInt(totals.withdrawable_wei) + BigInt(totals.escrowed_wei)
+    && BigInt(totals.escrowed_wei) === BigInt(totals.escrowed_wei_recomputed)
+    && BigInt(snapshot.contract_balance_wei) === received - withdrawn;
   state.snapshot = snapshot; save();
   if (fs.existsSync(directory + '/readback.json') && !fs.existsSync(directory + '/deployment-readback.json')) {
     fs.copyFileSync(directory + '/readback.json', directory + '/deployment-readback.json');

@@ -1,0 +1,106 @@
+{
+  "contract": "0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1",
+  "source_sha256": "45bd6d75c17c80f7b4c4628199c1e630b617e456dd2c7316cad2b596d96c7d38",
+  "network": "Stable Studionet",
+  "chain_id": 61999,
+  "checks": [
+    {
+      "label": "deploy-r4",
+      "hash": "0x0aef16ef7bd0a130b12599362441ef999053268133d8f4cf9e77ee15dfe8e8f5",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": null,
+      "assertions_passed": null
+    },
+    {
+      "label": "post-bb-r3-code",
+      "hash": "0xeef5716318bcdb58cfc2e0651c0b954c367bd28d4c5a39d7d7bdda94dfcf9cc5",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "post-bb-r3-fake",
+      "hash": "0x988cc3d53fa635703c8ee725181da4a45bdeb98d550076e5e31a4b2c9021ddd0",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "reject-unmerged-binding",
+      "hash": "0x9bf2e3f9c08ebbf1b7754854cd87e5dbe119eb88baa8fcec5cb256e02330c35f",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": false,
+        "reason": "IDENTITY_COMMIT_NOT_ON_DEFAULT_BRANCH"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "reject-cross-contract-binding",
+      "hash": "0x3c0b28c6768521c38762627385e9a681486fca3eefce3c8b35b89a84865742d7",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": false,
+        "reason": "GITHUB_WALLET_PROOF_MISSING"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "reject-unbound-payable-claim",
+      "hash": "0xa6124d881c67c6829cab093240ccf61d776dd012147103cd4fff7de74597f18a",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": false,
+        "reason": "IDENTITY_BINDING_MISSING",
+        "refunded_credit_wei": 1000000000000000000
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "withdraw-r4-refund",
+      "hash": "0x109c01aa050491881d5a5167eb011487ec50d1a379e56136ff3fe93f2ff0a2c8",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "withdrawn_wei": 1000000000000000000
+      },
+      "assertions_passed": true
+    }
+  ],
+  "conservation_verified": true,
+  "contract_balance_wei": "2000000000000000000",
+  "complete_flow_verified": false,
+  "remaining": [
+    "successful finalized zero-value identity binding and deterministic stake claim",
+    "immutable-code semantic consensus",
+    "nonzero challenge window and permissionless resolution",
+    "settlement and payee withdrawal after real expiry",
+    "live payable browser signing"
+  ],
+  "local_tests": {
+    "python": 40,
+    "javascript": 44,
+    "build": "passed"
+  },
+  "historical_failure_preserved": "evidence/revision-3/identity-failure.json"
+}

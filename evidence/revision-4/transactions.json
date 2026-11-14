@@ -21,7 +21,143 @@
       "status": "FINALIZED",
       "result_name": "MAJORITY_AGREE",
       "execution": "SUCCESS"
+    },
+    {
+      "label": "post-bb-r3-code",
+      "role": "issuer",
+      "method": "post_bounty",
+      "args": [
+        "bb-r3-code",
+        1000,
+        0,
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior."
+      ],
+      "value_units": 1000,
+      "hash": "0xeef5716318bcdb58cfc2e0651c0b954c367bd28d4c5a39d7d7bdda94dfcf9cc5",
+      "nonce": 3,
+      "submitted_at": "2026-11-14T01:47:36.437Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "post-bb-r3-fake",
+      "role": "issuer",
+      "method": "post_bounty",
+      "args": [
+        "bb-r3-fake",
+        1000,
+        0,
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "Implement reusable JavaScript helpers for exact GEN to 0.001-GEN units and wei conversion, stake clamping, precision-safe balance formatting, and challenge deadline actions. Challenges must stop at the deadline; execution opens at the deadline; pending challenges always block execution; unrelated accounts may resolve. Include automated tests for invalid amounts, precision, boundary times, challenge limits and role behavior."
+      ],
+      "value_units": 1000,
+      "hash": "0x988cc3d53fa635703c8ee725181da4a45bdeb98d550076e5e31a4b2c9021ddd0",
+      "nonce": 4,
+      "submitted_at": "2026-11-14T01:48:31.569Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "reject-unmerged-binding",
+      "role": "hunter",
+      "method": "bind_github_identity",
+      "args": [
+        "bb-r3-code",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "027cf7b173cccf57c992d7d3063f75ab04904e0a"
+      ],
+      "value_units": 0,
+      "hash": "0x9bf2e3f9c08ebbf1b7754854cd87e5dbe119eb88baa8fcec5cb256e02330c35f",
+      "nonce": 3,
+      "submitted_at": "2026-11-14T01:49:23.939Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": false,
+        "reason": "IDENTITY_COMMIT_NOT_ON_DEFAULT_BRANCH"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "reject-cross-contract-binding",
+      "role": "hunter",
+      "method": "bind_github_identity",
+      "args": [
+        "bb-r3-code",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "b0e4eef560f5b8d802cc5dcd58cb079d456a4f50"
+      ],
+      "value_units": 0,
+      "hash": "0x3c0b28c6768521c38762627385e9a681486fca3eefce3c8b35b89a84865742d7",
+      "nonce": 4,
+      "submitted_at": "2026-11-14T01:50:30.209Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": false,
+        "reason": "GITHUB_WALLET_PROOF_MISSING"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "reject-unbound-payable-claim",
+      "role": "stranger",
+      "method": "claim_bounty",
+      "args": [
+        "bb-r3-code",
+        "xiaoyu7799",
+        "xiaoyu7799/bounty-board-v2-genlayer",
+        "027cf7b173cccf57c992d7d3063f75ab04904e0a"
+      ],
+      "value_units": 1000,
+      "hash": "0xa6124d881c67c6829cab093240ccf61d776dd012147103cd4fff7de74597f18a",
+      "nonce": 2,
+      "submitted_at": "2026-11-14T01:51:31.764Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": false,
+        "reason": "IDENTITY_BINDING_MISSING",
+        "refunded_credit_wei": 1000000000000000000
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "withdraw-r4-refund",
+      "role": "stranger",
+      "method": "withdraw",
+      "args": [],
+      "value_units": 0,
+      "hash": "0x109c01aa050491881d5a5167eb011487ec50d1a379e56136ff3fe93f2ff0a2c8",
+      "nonce": 3,
+      "submitted_at": "2026-11-14T01:52:20.605Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "withdrawn_wei": 1000000000000000000
+      },
+      "assertions_passed": true
     }
   ],
-  "updated_at": "2026-11-14T01:43:00.794Z"
+  "updated_at": "2026-11-14T01:54:00.920Z"
 }

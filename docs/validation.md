@@ -26,7 +26,7 @@ ledger discrepancy remain under `evidence/revision-3/identity-failure.json`.
 - `node scripts/deploy.mjs --dry-validate`: **passed** against Stable Studionet;
   chain 61999 and wrong-network rejection checked; RPC returned 19 method schemas.
   This is a read-only schema check, not consensus execution.
-- Browser smoke: **blocked before page launch**. Installed Chromium terminated
+- Local headless browser smoke: **blocked before page launch**. Installed Chromium terminated
   at `process_singleton_posix.cc:297`, `socket() failed: Operation not permitted (1)`.
   No page interaction or real wallet transaction was exercised by that attempt.
 
@@ -58,3 +58,22 @@ selection/disconnection, bilingual switching and the faucet funding the displaye
 address with 20 testnet GEN. Those checks do not establish an injected-wallet
 signature or a payable browser write. The previous local browser launch failure
 remains recorded separately.
+
+## Executed revision 4 chain checks
+
+All transactions below reached FINALIZED with MAJORITY_AGREE/SUCCESS; rejected
+operations returned `accepted:false` as expected. The zero-value proof failures
+therefore did not repeat revision 3's consensus error.
+
+| Case | Actual result |
+|---|---|
+| Two funded posts | Both bounties OPEN, 1 testnet GEN each |
+| Proof commit not on default branch | Rejected: IDENTITY_COMMIT_NOT_ON_DEFAULT_BRANCH, value 0 |
+| Proof for a different contract address | Rejected: GITHUB_WALLET_PROOF_MISSING, value 0 |
+| Payable claim without confirmed binding | Rejected: IDENTITY_BINDING_MISSING; full 1 testnet GEN credited |
+| Withdrawal of that rejected claim | 1 testnet GEN withdrawn; remaining credit 0 |
+| Final ledger and actual contract balance | Received 3 GEN, withdrawn 1 GEN, escrow 2 GEN, actual balance 2 GEN; conservation matched |
+
+Raw hashes, returns and finality are under `evidence/revision-4/validation.json`
+and the corresponding complete receipt files. Positive identity, code scoring,
+challenge and tier payout acceptance is still incomplete.
