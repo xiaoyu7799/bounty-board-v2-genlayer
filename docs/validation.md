@@ -51,8 +51,8 @@ payable browser writes are not claimed by those checks.
 The code case's restarted deadline is **2026-11-15 10:12:14 Asia/Shanghai**
 (02:12:14 UTC). The FAKE case deadline is 10:07:13 Asia/Shanghai.
 Final tier settlement and payee withdrawals completed after genuine expiry.
-No simulation time was advanced. Payable browser signing and final write
-enablement remain unverified.
+No simulation time was advanced. Real payable browser signing, cancellation and refund withdrawal subsequently
+passed, as detailed below.
 Complete hashes, returns, receipts and state snapshots are under
 `evidence/revision-4/`; `validation.json` distinguishes expected errors from
 successful operations. Only participating validator majority agreement is claimed.
@@ -75,5 +75,22 @@ On 2026-11-15 the public GitHub Pages page displayed FINALIZED data for
 SETTLED_ACCEPT and SETTLED_FAKE, a 2-GEN hunter payout and a 2-GEN issuer
 refund, total received/withdrawn of 5 GEN each, and zero escrow. Its contract
 link points to revision 4. This is display verification, not browser signing.
-The current published version and local release retain the write guard until
-payable browser acceptance is complete.
+The release enables revision 4 writes after real payable browser acceptance.
+
+## Real browser payments
+
+On 2026-11-15, the same frontend was exercised at a temporary GitHub Pages
+acceptance path, with only the deployment-write flag enabled. The displayed
+account `0x2a5420e02eccf1610b3bb91a50aef927ff6db9db` received 20 testnet GEN,
+posted `bb-browser-r4-1115` with 1 GEN (1,000 units), cancelled the unclaimed
+bounty and withdrew the full 1-GEN refund. All three transactions finalized with
+MAJORITY_AGREE/SUCCESS; their sender matches the displayed signer. Independent
+readback confirms CANCELLED, zero withdrawal credit, the original 20-GEN
+account balance restored, and 6 GEN received/withdrawn with zero escrow and
+actual contract balance. The deployed source hash still matches. English/Chinese
+switching was observed after withdrawal. No existing test transaction was repeated.
+
+Complete receipts, readback, browser summary and the finalized-withdrawal
+screenshot are in `evidence/revision-4/browser/`. The temporary acceptance page
+is removed in the release. Injected-wallet extension signatures have module test
+coverage; this browser run proves the temporary-account signing path.

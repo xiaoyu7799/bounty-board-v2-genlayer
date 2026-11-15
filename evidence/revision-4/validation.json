@@ -535,11 +535,8 @@
   "contract_balance_wei": "0",
   "immutable_code_hashes_independently_matched": true,
   "consensus_evidence_hash_independently_matched": true,
-  "complete_flow_verified": false,
-  "remaining": [
-    "live payable browser signing and final write enablement",
-    "publish final evidence to main and verify GitHub Pages"
-  ],
+  "complete_flow_verified": true,
+  "remaining": [],
   "challenge_deadlines": {
     "bb-r3-code": 1794708734,
     "bb-r3-fake": 1794708433
@@ -554,9 +551,11 @@
   "final_ledger": {
     "escrowed_wei": 0,
     "escrowed_wei_recomputed": 0,
-    "total_received_wei": 5000000000000000000,
-    "total_withdrawn_wei": 5000000000000000000,
+    "total_received_wei": 6000000000000000000,
+    "total_withdrawn_wei": 6000000000000000000,
     "withdrawable_wei": 0
   },
-  "final_readback": "readback.json"
+  "final_readback": "readback.json",
+  "browser_validation": "browser/validation.json",
+  "browser_flow_verified": true
 }
