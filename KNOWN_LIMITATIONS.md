@@ -1,7 +1,8 @@
 # Known limitations
 
 - Revised code is deployed with matching source hash. Live identity, semantic consensus and permissionless challenge resolution
-  are verified; final timed settlement evidence remains incomplete. Historical
+  and genuine timed settlement/withdrawals are verified. Payable browser acceptance
+  and final write enablement remain incomplete. Historical
   receipts belong to the old contract and do not prove the revised mechanisms.
 - GitHub profile control is proved through public bio content, not OAuth or a
   GitHub-issued cryptographic attestation. The alternative repository-file proof
