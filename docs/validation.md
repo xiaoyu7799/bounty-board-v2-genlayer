@@ -40,12 +40,19 @@ payable browser writes are not claimed by those checks.
 | Hunter challenge | FINALIZED/SUCCESS |
 | Issuer execution during challenge | FINALIZED expected execution error PENDING_CHALLENGE_BLOCKS_EXECUTION; complete receipt retained |
 | Stranger challenge resolution | FINALIZED/SUCCESS; ACCEPT; readback round 2, challenge_count 1, no pending challenge |
-| Latest conservation | Received 5 GEN, withdrawn 1 GEN, escrow 4 GEN, actual contract balance 4 GEN; all matched |
+| Late challenge | FINALIZED expected execution error CHALLENGE_WINDOW_CLOSED |
+| Permissionless ACCEPT settlement | FINALIZED/SUCCESS; stranger settled after the genuine restarted deadline |
+| Permissionless FAKE settlement | FINALIZED/SUCCESS; stranger settled after the genuine deadline |
+| Hunter withdrawal | FINALIZED/SUCCESS; actually withdrew 2 testnet GEN |
+| Issuer withdrawal | FINALIZED/SUCCESS; actually withdrew 2 testnet GEN |
+| Repeat settlement | FINALIZED expected execution error; retained receipt confirms no second payment |
+| Final conservation | Received 5 GEN, withdrawn 5 GEN, escrow 0, credits 0, actual contract balance 0; all matched |
 
 The code case's restarted deadline is **2026-11-15 10:12:14 Asia/Shanghai**
 (02:12:14 UTC). The FAKE case deadline is 10:07:13 Asia/Shanghai.
-Final tier settlement, payee withdrawals and payable browser signing remain
-unverified until the genuine deadlines expire. No simulation time is advanced.
+Final tier settlement and payee withdrawals completed after genuine expiry.
+No simulation time was advanced. Payable browser signing and final write
+enablement remain unverified.
 Complete hashes, returns, receipts and state snapshots are under
 `evidence/revision-4/`; `validation.json` distinguishes expected errors from
 successful operations. Only participating validator majority agreement is claimed.
@@ -61,3 +68,12 @@ the value-bearing path by binding identity in a separate zero-value transaction
 and keeping payable claims deterministic. It does not repair the old ledger.
 Root historical receipts from earlier deployments remain unchanged and are not
 used to prove revision 4 behavior.
+
+## Published browser readback
+
+On 2026-11-15 the public GitHub Pages page displayed FINALIZED data for
+SETTLED_ACCEPT and SETTLED_FAKE, a 2-GEN hunter payout and a 2-GEN issuer
+refund, total received/withdrawn of 5 GEN each, and zero escrow. Its contract
+link points to revision 4. This is display verification, not browser signing.
+The current published version and local release retain the write guard until
+payable browser acceptance is complete.

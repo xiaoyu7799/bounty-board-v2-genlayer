@@ -416,17 +416,129 @@
         "verdict": "ACCEPT"
       },
       "assertions_passed": true
+    },
+    {
+      "label": "expired-challenge-rejected",
+      "role": "hunter",
+      "method": "challenge_verdict",
+      "args": [
+        "bb-r3-code",
+        "https://github.com/xiaoyu7799/bounty-board-v2-genlayer/pull/6",
+        "Late challenge must be rejected after the original deadline.",
+        "REJECT"
+      ],
+      "value_units": 0,
+      "hash": "0xc0cd82b3deb835152ff41e7aa81a9efe3b61ae1f89757d6ccffbe51f835d4bad",
+      "nonce": 12,
+      "submitted_at": "2026-11-15T02:35:21.636Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "ERROR",
+      "assertions_passed": true
+    },
+    {
+      "label": "settle-code-after-window",
+      "role": "stranger",
+      "method": "execute_verdict",
+      "args": [
+        "bb-r3-code"
+      ],
+      "value_units": 0,
+      "hash": "0xf34fd49040274ceb8f61a33a3bce5b27cf8df279b22b38c777d4e1c55c894593",
+      "nonce": 7,
+      "submitted_at": "2026-11-15T02:36:04.732Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-code",
+        "verdict": "ACCEPT"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "settle-fake-after-window",
+      "role": "stranger",
+      "method": "execute_verdict",
+      "args": [
+        "bb-r3-fake"
+      ],
+      "value_units": 0,
+      "hash": "0xc3225d68208b2f71517717a136f5d39eb0e19a7e3ff41973242566825c55dcca",
+      "nonce": 8,
+      "submitted_at": "2026-11-15T02:36:43.433Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "bounty_id": "bb-r3-fake",
+        "verdict": "FAKE"
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "withdraw-hunter-final",
+      "role": "hunter",
+      "method": "withdraw",
+      "args": [],
+      "value_units": 0,
+      "hash": "0xae8589aad0d48dd4fd1c718d61387917a8104c6ef48276cef0f2d5945ab42763",
+      "nonce": 13,
+      "submitted_at": "2026-11-15T02:37:22.509Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "withdrawn_wei": 2000000000000000000
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "withdraw-issuer-final",
+      "role": "issuer",
+      "method": "withdraw",
+      "args": [],
+      "value_units": 0,
+      "hash": "0x4f08c0db0632e4ee2ff618b62eb089f3a09094ff97d10475e98f7c5ac3a8bab1",
+      "nonce": 7,
+      "submitted_at": "2026-11-15T02:38:02.089Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "return_value": {
+        "accepted": true,
+        "withdrawn_wei": 2000000000000000000
+      },
+      "assertions_passed": true
+    },
+    {
+      "label": "repeat-settlement-blocked",
+      "role": "stranger",
+      "method": "execute_verdict",
+      "args": [
+        "bb-r3-code"
+      ],
+      "value_units": 0,
+      "hash": "0x907270dd2a94d0aa95f646f7150f8088f645047aa726d8846f2a2269186f52cd",
+      "nonce": 9,
+      "submitted_at": "2026-11-15T02:38:51.903Z",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "ERROR",
+      "assertions_passed": true
     }
   ],
   "conservation_verified": true,
-  "contract_balance_wei": "4000000000000000000",
+  "contract_balance_wei": "0",
   "immutable_code_hashes_independently_matched": true,
   "consensus_evidence_hash_independently_matched": true,
   "complete_flow_verified": false,
   "remaining": [
-    "late challenge rejection after genuine expiry",
-    "permissionless final settlement and payee withdrawal",
-    "live payable browser signing and final write enablement"
+    "live payable browser signing and final write enablement",
+    "publish final evidence to main and verify GitHub Pages"
   ],
   "challenge_deadlines": {
     "bb-r3-code": 1794708734,
@@ -437,5 +549,14 @@
     "javascript": 44,
     "build": "passed"
   },
-  "historical_failure_preserved": "evidence/revision-3/identity-failure.json"
+  "historical_failure_preserved": "evidence/revision-3/identity-failure.json",
+  "chain_flow_verified": true,
+  "final_ledger": {
+    "escrowed_wei": 0,
+    "escrowed_wei_recomputed": 0,
+    "total_received_wei": 5000000000000000000,
+    "total_withdrawn_wei": 5000000000000000000,
+    "withdrawable_wei": 0
+  },
+  "final_readback": "readback.json"
 }
