@@ -2,8 +2,8 @@
 
 The revised contract is deployed at `0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1`.
 Its FINALIZED/SUCCESS receipt and matching-source readback are under
-`evidence/revision-4/`; timed chain settlement and withdrawals are verified; payable browser acceptance
-and final write enablement remain pending. `evidence/deployment.json`,
+`evidence/revision-4/`; timed chain settlement and withdrawals are verified; real temporary-account browser
+post/cancel/withdraw acceptance is also verified in `evidence/revision-4/browser/`. `evidence/deployment.json`,
 `deploy-receipt.json`, `flow*.json`, `evidence.json` and `verification.json`
 are preserved historical records for `0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3`.
 Their source hash is not the revised source hash. `verify.mjs` will correctly

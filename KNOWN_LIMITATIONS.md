@@ -1,8 +1,8 @@
 # Known limitations
 
 - Revised code is deployed with matching source hash. Live identity, semantic consensus and permissionless challenge resolution
-  and genuine timed settlement/withdrawals are verified. Payable browser acceptance
-  and final write enablement remain incomplete. Historical
+  and genuine timed settlement/withdrawals are verified. Browser temporary-account signing and
+  payable post/cancel/withdraw acceptance are verified. Historical
   receipts belong to the old contract and do not prove the revised mechanisms.
 - GitHub profile control is proved through public bio content, not OAuth or a
   GitHub-issued cryptographic attestation. The alternative repository-file proof
@@ -24,11 +24,14 @@
   Clients should challenge well before expiry; queued transactions or prolonged
   finalization can reduce the practical response time.
 - The browser faucet uses `sim_fundAccount`, the existing Studionet funding route.
-  Live revised browser signing, funding and payable flows still require testing.
+  Real temporary-account funding, signing, post/cancel and withdrawal are verified;
+  injected-wallet hardware/extension signatures have module coverage only.
   Temporary keys disappear on page closure; pending payouts then become inaccessible.
-- Browser smoke testing in this environment was blocked before page launch by
+- The initial local headless smoke attempt was blocked before page launch by
   Chromium's process singleton socket permission failure. Module-level wallet
-  tests and the production bundle build were executed separately.
+  tests and the production bundle build were executed separately. A subsequent
+  real cloud-browser run passed temporary-account post/cancel/withdraw; its receipts
+  and screenshot are retained in `evidence/revision-4/browser/`.
 
 - Revision 3 failed its live negative identity test: transaction
   `0x5b6ec000668a673b41544500ddd8318c1b266dde01a3a11865ed5a08448cea35`

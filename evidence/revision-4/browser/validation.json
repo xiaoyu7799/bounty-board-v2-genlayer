@@ -1,0 +1,47 @@
+{
+  "mode": "real browser controls; real Stable Studionet transactions",
+  "url": "https://xiaoyu7799.github.io/bounty-board-v2-genlayer/tests/live/",
+  "bounty_id": "bb-browser-r4-1115",
+  "displayed_account": "0x2a5420e02eccf1610b3bb91a50aef927ff6db9db",
+  "chain_id": 61999,
+  "contract": "0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1",
+  "checks": [
+    {
+      "hash": "0xbca9ce9880a004a78b751f575c69605daf01145836b5ea02cf12bd6b86b95e0a",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "from": "0x2A5420e02ECcF1610B3bb91A50Aef927Ff6dB9db",
+      "value_wei": "0",
+      "method": "withdraw"
+    },
+    {
+      "hash": "0xf60c67ef65e80813088a61721a598280a4ffc2c0f0981fdb9bd80c4cec6aa0e3",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "from": "0x2A5420e02ECcF1610B3bb91A50Aef927Ff6dB9db",
+      "value_wei": "0",
+      "method": "cancel_bounty"
+    },
+    {
+      "hash": "0x8edefccffe96927449d6ed548c783cde3e74129a03d63bc13538fe2af778cdb7",
+      "status": "FINALIZED",
+      "result_name": "MAJORITY_AGREE",
+      "execution": "SUCCESS",
+      "from": "0x2A5420e02ECcF1610B3bb91A50Aef927Ff6dB9db",
+      "value_wei": "1000000000000000000",
+      "method": "post_bounty"
+    }
+  ],
+  "posted_units": 1000,
+  "posted_wei": "1000000000000000000",
+  "final_state": "CANCELLED",
+  "full_refund_withdrawn": true,
+  "account_returned_to_funded_balance": true,
+  "source_hash_matches": true,
+  "final_conservation_verified": true,
+  "injected_wallet_real_signature_tested": false,
+  "observed_at": "2026-11-15T03:03:03.924Z",
+  "language_switch_verified": true
+}

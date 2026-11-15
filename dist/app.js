@@ -22344,8 +22344,8 @@ async function bindThenClaim({ wallet: wallet2, currentWallet, runWrite: runWrit
 
 // site/src/config.js
 var APP_CONFIG = {
-  REMEDIATED_DEPLOYMENT: false,
-  // Revised address remains read-only until full live acceptance.
+  REMEDIATED_DEPLOYMENT: true,
+  // Revision 4 timed chain flow and real browser payments verified.
   RPC_URL: "https://studio.genlayer.com/api",
   CHAIN_ID: 61999,
   NETWORK_NAME: "Stable Studionet",

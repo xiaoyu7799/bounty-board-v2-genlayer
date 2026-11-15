@@ -2,9 +2,42 @@
   "contract": "0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1",
   "source_sha256": "45bd6d75c17c80f7b4c4628199c1e630b617e456dd2c7316cad2b596d96c7d38",
   "code_matches_source": true,
-  "read_at": "2026-11-15T02:39:54.777Z",
+  "read_at": "2026-11-15T03:02:47.675Z",
   "get_all_bounties": {
     "bounties": {
+      "bb-browser-r4-1115": {
+        "amount": 1000,
+        "bounty_id": "bb-browser-r4-1115",
+        "challenge": null,
+        "challenge_count": 0,
+        "claimed_by": "",
+        "contradictions": [],
+        "delivery": null,
+        "events": [
+          {
+            "actor": "0x2a5420e02eccf1610b3bb91a50aef927ff6db9db",
+            "event": "POSTED",
+            "sequence": 15
+          },
+          {
+            "actor": "0x2a5420e02eccf1610b3bb91a50aef927ff6db9db",
+            "event": "CANCELLED",
+            "sequence": 16
+          }
+        ],
+        "expected_repo_slug": "xiaoyu7799/bounty-board-v2-genlayer",
+        "hunter_github_id": 0,
+        "hunter_github_login": "",
+        "issuer": "0x2a5420e02eccf1610b3bb91a50aef927ff6db9db",
+        "last_audit": null,
+        "min_reputation": 0,
+        "pending_verdict": null,
+        "requirements": "Browser acceptance: post one testnet GEN from the displayed temporary signer, cancel this unclaimed bounty and withdraw the full refund.",
+        "rounds": [],
+        "settlement": null,
+        "stake": 0,
+        "status": "CANCELLED"
+      },
       "bb-r3-code": {
         "amount": 1000,
         "bounty_id": "bb-r3-code",
@@ -273,8 +306,8 @@
   "get_ledger_totals": {
     "escrowed_wei": 0,
     "escrowed_wei_recomputed": 0,
-    "total_received_wei": 5000000000000000000,
-    "total_withdrawn_wei": 5000000000000000000,
+    "total_received_wei": 6000000000000000000,
+    "total_withdrawn_wei": 6000000000000000000,
     "withdrawable_wei": 0
   },
   "withdrawable": {
@@ -292,6 +325,10 @@
     },
     "stranger": {
       "address": "0xdf8a329f69bc2d0bf493633a5d0937644c3f05ce",
+      "withdrawable_wei": 0
+    },
+    "browser": {
+      "address": "0x2a5420e02eccf1610b3bb91a50aef927ff6db9db",
       "withdrawable_wei": 0
     }
   },

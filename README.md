@@ -8,7 +8,7 @@ adjudication, challenges and pull payments on Stable Studionet (61999).
 The revised source is deployed at `0x04109e0EA19e022Abdeb51BA907AF468aCEe1Da1`
 with a FINALIZED/SUCCESS receipt and independently matched source hash.
 See `evidence/revision-4/`. Revision 3 failed its negative identity test;
-its failure and ledger discrepancy remain under `evidence/revision-3/`. Live identity, immutable-code consensus, permissionless challenge resolution, timed settlement and real withdrawals are verified. ACCEPT and FAKE each settled after the genuine deadline; the hunter and issuer each withdrew 2 testnet GEN. Final contract balance, escrow and withdrawal credits are zero. The website remains read-only pending payable browser acceptance and final publication.
+its failure and ledger discrepancy remain under `evidence/revision-3/`. Live identity, immutable-code consensus, permissionless challenge resolution, timed settlement and real withdrawals are verified. ACCEPT and FAKE each settled after the genuine deadline; the hunter and issuer each withdrew 2 testnet GEN. Final contract balance, escrow and withdrawal credits are zero. Browser signing, a 1-GEN post, cancellation and full refund withdrawal are verified from the displayed temporary account. Including that browser check, final received and withdrawn totals are 6 GEN each, with zero escrow, withdrawal credits and actual contract balance. The website enables revision 4 writes.
 Historical receipts in the root `evidence/` directory belong to
 `0xa926EFede20F0D4Daaa29cfba42a3C57f8c2acd3` only.
 
